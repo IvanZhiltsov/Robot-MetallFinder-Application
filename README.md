@@ -1,4 +1,4 @@
-# Robot-MetallFinder-Application
+## Robot-MetallFinder-Application
 Приложение для связи с роботом-металлоискателем
 
 # Описание робота
