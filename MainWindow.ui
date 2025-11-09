@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>918</width>
+    <height>666</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Robot-MetallFinder connector</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab_map">
+       <attribute name="title">
+        <string>Карта</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+          <item>
+           <layout class="QHBoxLayout" name="edit_map_hl" stretch="1,1,0,3,0,4,4,0,3">
+            <item>
+             <widget class="QPushButton" name="undo_btn">
+              <property name="text">
+               <string>Отменить</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="recover_btn">
+              <property name="text">
+               <string>Восстановить</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cursor_btn">
+              <property name="text">
+               <string>Курсор</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="poligon_btn">
+              <property name="text">
+               <string>Риовать Полигон</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="del_poligon_btn">
+              <property name="text">
+               <string>Удалить Полигон</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="finish_btn">
+              <property name="text">
+               <string>Создать Финиш</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QWidget" name="map_widget" native="true"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_robot">
+       <attribute name="title">
+        <string>Робот</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QWidget" name="connection_widget" native="true">
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="QPushButton" name="discon_btn">
+                 <property name="text">
+                  <string>Отключиться</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="get_data_btn">
+                 <property name="text">
+                  <string>Получить данные</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="clear_btn">
+                 <property name="text">
+                  <string>Очистить память</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="load_btn">
+                 <property name="text">
+                  <string>Загрузить карту</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="devices_widwet" native="true">
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="0" column="0">
+              <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0,0,0,0,0,0">
+               <item>
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>Доступные устройства:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_11">
+                 <property name="text">
+                  <string>Наушники</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_12">
+                 <property name="text">
+                  <string>Колонка</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_13">
+                 <property name="text">
+                  <string>Робот 1</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_14">
+                 <property name="text">
+                  <string>Робот 2</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="status_widget" native="true">
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="0" column="0">
+              <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,10,0,0">
+               <item>
+                <widget class="QLabel" name="name_lable">
+                 <property name="text">
+                  <string>Имя робота: Robot 1</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="mode_label">
+                 <property name="text">
+                  <string>Режим робота: Закончил работу</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="search_info_widget" native="true">
+                 <layout class="QGridLayout" name="gridLayout_4">
+                  <item row="1" column="0">
+                   <layout class="QVBoxLayout" name="serch_info_vl" stretch="0,1,1,0,0">
+                    <item>
+                     <widget class="QLabel" name="label_4">
+                      <property name="text">
+                       <string>Информация о поиске:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="places_label">
+                      <property name="text">
+                       <string>Обнаружено мест с металлом: 7</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="spent_time_lable">
+                      <property name="text">
+                       <string>Затраченное время: 1 ч. 30 мин.</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_5">
+                      <property name="text">
+                       <string>Затраченный заряд:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QProgressBar" name="spent_power_bar">
+                      <property name="value">
+                       <number>80</number>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>Текущий заряд:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QProgressBar" name="current_power_bar">
+                 <property name="value">
+                  <number>20</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>918</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="file_menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="action_open"/>
+    <addaction name="separator"/>
+    <addaction name="action_save"/>
+    <addaction name="action_save_as"/>
+    <addaction name="separator"/>
+    <addaction name="action_load"/>
+   </widget>
+   <widget class="QMenu" name="about_manu">
+    <property name="title">
+     <string>О программе</string>
+    </property>
+    <addaction name="action_GitHub"/>
+    <addaction name="action_YM_API"/>
+   </widget>
+   <addaction name="file_menu"/>
+   <addaction name="about_manu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_open">
+   <property name="text">
+    <string>Открыть</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+  </action>
+  <action name="action_save_as">
+   <property name="text">
+    <string>Сохранить как</string>
+   </property>
+  </action>
+  <action name="action_load">
+   <property name="text">
+    <string>Загрузить в робота</string>
+   </property>
+  </action>
+  <action name="action_GitHub">
+   <property name="text">
+    <string>Приложение в GitHub</string>
+   </property>
+  </action>
+  <action name="action_YM_API">
+   <property name="text">
+    <string>Yandex Map API</string>
+   </property>
+  </action>
+  <action name="action_7">
+   <property name="text">
+    <string>Благодарностть</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
