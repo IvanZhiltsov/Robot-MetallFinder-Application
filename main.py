@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi('MainWindow.ui', self)
 
-        self.is_conn = False
+        self.is_conn = Bluetooth.is_connected()
         self.dev_btn_group = QButtonGroup(self)
 
         self.init_tab_map()
@@ -37,22 +37,36 @@ class MainWindow(QMainWindow):
             self.edit_map_widget.hide()
 
     def init_tab_robot(self):
+        self.update_dev_btn.clicked.connect(self.update_devices)
+
+        self.update_tab_robot()
+
+    def update_tab_robot(self):
         if self.is_conn:
-            self.connection_widget.show()
-            self.status_widget.show()
+            self.update_info()
+
+            self.edit_widget.show()
+            self.info_widget.show()
             self.devices_widwet.hide()
 
         else:
             self.update_devices()
-            self.update_dev_btn.clicked.connect(self.update_devices)
 
-            self.connection_widget.hide()
-            self.status_widget.hide()
+            self.edit_widget.hide()
+            self.info_widget.hide()
             self.devices_widwet.show()
+
+    def update_info(self):
+        # {"name": '', "mode": '', "current_power": ''}
+        data = Bluetooth.get_info()
+
+        self.name_lable.setText(f"Имя робота: {data['name']}")
+        self.mode_label.setText(f"Режим робота: {data['mode']}")
 
     def update_devices(self):
         # {"name": '', "adress": ''}
         devices = Bluetooth.get_devices()
+        self.dict_btn_dev = {}
 
         for btn in self.dev_btn_group.buttons():
             self.dev_btn_group.removeButton(btn)
@@ -63,16 +77,19 @@ class MainWindow(QMainWindow):
             name = device["name"]
             btn = QPushButton(name, self)
             btn.clicked.connect(self.get_connection)
+
             self.dev_btn_group.addButton(btn)
             self.devices_vl.addWidget(btn)
 
+            self.dict_btn_dev[btn] = device
+
     def get_connection(self):
-        if Bluetooth.get_connection():
+        device = self.dict_btn_dev[self.sender()]
+        if Bluetooth.get_connection(device):
             self.is_conn = True
-            self.init_tab_robot()
         else:
             self.is_conn = False
-            self.init_tab_robot()
+        self.update_tab_robot()
 
     def init_menu(self):
         # map_test_lable
