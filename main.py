@@ -1,5 +1,7 @@
 import sys
 
+import Bluetooth
+
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6 import QtCore, QtWidgets
@@ -42,7 +44,6 @@ class MainWindow(QMainWindow):
 
         else:
             self.update_devices()
-
             self.update_dev_btn.clicked.connect(self.update_devices)
 
             self.connection_widget.hide()
@@ -51,23 +52,27 @@ class MainWindow(QMainWindow):
 
     def update_devices(self):
         # {"name": '', "adress": ''}
-        devices = [{"name": "Robot1", "adress": ""},
-                   {"name": "Наушники", "adress": ""},
-                   {"name": "Колонка", "adress": ""}]
+        devices = Bluetooth.get_devices()
 
         for btn in self.dev_btn_group.buttons():
             self.dev_btn_group.removeButton(btn)
             self.devices_vl.removeWidget(btn)
+            del btn
 
         for device in devices:
             name = device["name"]
             btn = QPushButton(name, self)
+            btn.clicked.connect(self.get_connection)
             self.dev_btn_group.addButton(btn)
             self.devices_vl.addWidget(btn)
-        self.dev_btn_group.buttonClicked.connect(self.get_connection)
 
     def get_connection(self):
-        pass
+        if Bluetooth.get_connection():
+            self.is_conn = True
+            self.init_tab_robot()
+        else:
+            self.is_conn = False
+            self.init_tab_robot()
 
     def init_menu(self):
         # map_test_lable
