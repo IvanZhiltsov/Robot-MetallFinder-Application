@@ -39,6 +39,11 @@ class MainWindow(QMainWindow):
     def init_tab_robot(self):
         self.update_dev_btn.clicked.connect(self.update_devices)
 
+        self.discon_btn.clicked.connect(self.disconnection)
+        self.get_data_btn.clicked.connect(self.get_robot_data)
+        self.clear_btn.clicked.connect(self.clear_robot)
+        self.load_btn.clicked.connect(self.load_file)
+
         self.update_tab_robot()
 
     def update_tab_robot(self):
@@ -57,14 +62,31 @@ class MainWindow(QMainWindow):
             self.devices_widwet.show()
 
     def update_info(self):
-        # {"name": '', "mode": '', "current_power": ''}
+        # {"name": str, "mode": str, "current_power": int %, "search_info": dict}
         data = Bluetooth.get_info()
 
         self.name_lable.setText(f"Имя робота: {data['name']}")
         self.mode_label.setText(f"Режим робота: {data['mode']}")
+        self.current_power_bar.setValue(data['current_power'])
+
+        if data['mode'] == "Окончил работу":
+            self.search_info_widget.show()
+
+            # {"places": int, "spent_time": int minutes, "spent_power": int %}
+            info = data['search_info']
+
+            time = info['spent_time']
+            hours = time // 60
+            minutes = time % 60
+
+            self.places_label.setText(f"Обнаружено мест с металлом: {str(info['places'])}")
+            self.spent_time_lable.setText(f"Затраченное время: {str(hours)} ч. {str(minutes)} мин.")
+            self.spent_power_bar.setValue(info['spent_power'])
+        else:
+            self.search_info_widget.hide()
 
     def update_devices(self):
-        # {"name": '', "adress": ''}
+        # {"name": srtr, "adress": str}
         devices = Bluetooth.get_devices()
         self.dict_btn_dev = {}
 
@@ -90,6 +112,15 @@ class MainWindow(QMainWindow):
         else:
             self.is_conn = False
         self.update_tab_robot()
+
+    def disconnection(self):
+        pass
+
+    def get_robot_data(self):
+        pass
+
+    def clear_robot(self):
+        pass
 
     def init_menu(self):
         # map_test_lable
