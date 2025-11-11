@@ -22,7 +22,6 @@ class MainWindow(QMainWindow):
 
         self.map_type = "empty"
         self.is_conn = Bluetooth.is_connected()
-        self.dev_btn_group = QButtonGroup(self)
 
         self.tab_robot = TabRobot(self)
         self.menu = Menu(self)
@@ -35,7 +34,6 @@ class MainWindow(QMainWindow):
 class TabMap:
     def __init__(self, parent):
         super().__init__()
-
         self.p = parent
 
         map_type = self.p.map_type
@@ -53,6 +51,9 @@ class TabRobot:
         super().__init__()
         self.p = parent
 
+        self.data = None
+        self.dev_btn_group = QButtonGroup(self.p)
+
         self.p.update_dev_btn.clicked.connect(self.update_devices)
 
         self.p.discon_btn.clicked.connect(self.disconnection)
@@ -60,11 +61,18 @@ class TabRobot:
         self.p.clear_btn.clicked.connect(self.clear_robot)
         self.p.load_btn.clicked.connect(self.p.load_file)
 
-        self.update_tab_robot()
+        self.update()
 
-    def update_tab_robot(self):
+    def update(self):
         if self.p.is_conn:
             self.update_info()
+
+            if self.data["device"]["info"]['mode'] in ("Окончил работу", "Рабочий режим"):
+                self.p.get_data_btn.setEnabled(True)
+                self.p.clear_btn.setEnabled(True)
+            else:
+                self.p.get_data_btn.setEnabled(False)
+                self.p.clear_btn.setEnabled(False)
 
             self.p.edit_widget.show()
             self.p.info_widget.show()
@@ -79,58 +87,58 @@ class TabRobot:
 
     def update_info(self):
         # {"name": str, "mode": str, "current_power": int %, "search_info": dict}
-        data = Bluetooth.get_info()
+        self.data = Bluetooth.get_info()
 
-        self.p.name_lable.setText(f"Имя робота: {data['name']}")
-        self.p.mode_label.setText(f"Режим робота: {data['mode']}")
-        self.p.current_power_bar.setValue(data['current_power'])
+        self.p.name_lable.setText(f"Имя робота: {self.data['name']}")
 
-        if data['mode'] == "Окончил работу":
+        info = self.data['device']['info']
+        self.p.mode_label.setText(f"Режим робота: {info['mode']}")
+        self.p.current_power_bar.setValue(info['current_power'])
+
+        if info['mode'] == "Окончил работу":
             self.p.search_info_widget.show()
 
             # {"places": int, "spent_time": int minutes, "spent_power": int %}
-            info = data['search_info']
+            search_info = info['search_info']
 
-            time = info['spent_time']
+            time = search_info['spent_time']
             hours = time // 60
             minutes = time % 60
 
-            self.p.places_label.setText(f"Обнаружено мест с металлом: {str(info['places'])}")
+            self.p.places_label.setText(f"Обнаружено мест с металлом: {str(search_info['places'])}")
             self.p.spent_time_lable.setText(f"Затраченное время: {str(hours)} ч. {str(minutes)} мин.")
-            self.p.spent_power_bar.setValue(info['spent_power'])
+            self.p.spent_power_bar.setValue(search_info['spent_power'])
         else:
             self.p.search_info_widget.hide()
 
     def update_devices(self):
         # {"name": srtr, "adress": str}
-        devices = Bluetooth.get_devices()
-        self.dict_btn_dev = {}
+        names = Bluetooth.get_dev_names()
 
-        for btn in self.p.dev_btn_group.buttons():
-            self.p.dev_btn_group.removeButton(btn)
+        for btn in self.dev_btn_group.buttons():
+            self.dev_btn_group.removeButton(btn)
             self.p.devices_vl.removeWidget(btn)
             del btn
 
-        for device in devices:
-            name = device["name"]
+        for name in names:
             btn = QPushButton(name, self.p)
             btn.clicked.connect(self.get_connection)
 
-            self.p.dev_btn_group.addButton(btn)
+            self.dev_btn_group.addButton(btn)
             self.p.devices_vl.addWidget(btn)
 
-            self.dict_btn_dev[btn] = device
-
     def get_connection(self):
-        device = self.dict_btn_dev[self.p.sender()]
-        if Bluetooth.get_connection(device):
+        name = self.p.sender().text()
+        if Bluetooth.get_connection(name):
             self.p.is_conn = True
         else:
             self.p.is_conn = False
-        self.update_tab_robot()
+        self.update()
 
     def disconnection(self):
-        pass
+        Bluetooth.disconection()
+        self.p.is_conn = False
+        self.update()
 
     def get_robot_data(self):
         pass
