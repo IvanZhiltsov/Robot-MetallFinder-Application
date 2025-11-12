@@ -1,6 +1,6 @@
 import sys
 
-import Bluetooth
+import BluetoothPy
 
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow

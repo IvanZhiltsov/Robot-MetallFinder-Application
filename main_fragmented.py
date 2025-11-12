@@ -1,13 +1,13 @@
 import sys
 
-import Bluetooth
+from BluetoothPy import Bluetooth
 from MapPy import Map
 
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6 import QtCore, QtWidgets
 
-from PyQt6.QtWidgets import QPushButton, QButtonGroup
+from PyQt6.QtWidgets import QPushButton, QButtonGroup, QFileDialog
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
@@ -16,19 +16,32 @@ if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
+bluetooth = Bluetooth()
+map = Map()
+
 
 class MainWindow(QMainWindow):
+    global bluetooth, map
+
     def __init__(self):
         super().__init__()
         uic.loadUi('MainWindow.ui', self)
 
-        self.map = Map
-        self.map_type = "empty"
-        self.is_conn = Bluetooth.is_connected()
+        self.tabWidget.setCurrentIndex(0)
 
         self.tab_robot = TabRobot(self)
         self.tab_map = TabMap(self)
         self.menu = Menu(self)
+
+    def update(self):
+        self.tab_robot.update()
+        self.tab_map.update()
+        self.menu.update()
+
+        if map.name is not None:
+            self.setWindowTitle(f"Robot-MetallFinder connector - [{map.name}]")
+        else:
+            self.setWindowTitle(f"Robot-MetallFinder connector")
 
     def load_file(self):
         pass
@@ -54,9 +67,9 @@ class TabMap:
         self.update()
 
     def update(self):
-        if self.p.map_type == "empty":
+        if map.type == "empty":
             self.p.edit_map_widget.show()
-        elif self.p.map_type == "edit":
+        elif map.type == "edit":
             self.p.edit_map_widget.show()
         else:
             self.p.edit_map_widget.hide()
@@ -98,12 +111,12 @@ class TabRobot:
     def update(self):
         self.p.statusbar.clearMessage()
 
-        if Bluetooth.is_bluetooth():
+        if bluetooth.is_bluetooth():
             self.p.is_bluetooth_lable.clear()
         else:
             self.p.is_bluetooth_lable.setText("Нет подключения к Bluetooth!!")
 
-        if self.p.is_conn:
+        if bluetooth.is_connected():
             self.update_info()
 
             self.p.edit_widget.show()
@@ -119,7 +132,7 @@ class TabRobot:
 
     def update_info(self):
         # {"name": str, "device": {"adress": str, "info": dict}}
-        data, ok = Bluetooth.get_info()
+        data, ok = bluetooth.get_info()
 
         if not ok:
             self.p.statusbar.showMessage("Не удалось получить информацию о роботе")
@@ -170,7 +183,7 @@ class TabRobot:
             self.p.devices_vl.removeWidget(btn)
             del btn
 
-        names = Bluetooth.get_dev_names()
+        names = bluetooth.get_dev_names()
 
         if len(names) == 0:
             self.p.divices_label.setText("Не найдены устройства для подключения")
@@ -187,30 +200,24 @@ class TabRobot:
 
     def get_connection(self):
         name = self.p.sender().text()
-        if Bluetooth.get_connection(name):
-            self.p.is_conn = True
-        else:
-            self.p.is_conn = False
-        self.update()
-        self.p.menu.update()
-        if not self.p.is_conn:
+        bluetooth.get_connection(name)
+        self.p.update()
+        if not bluetooth.is_connected():
             self.p.statusbar.showMessage(f"Не удалось подключиться к устройству {name}")
 
     def disconnection(self):
-        Bluetooth.disconection()
-        self.p.is_conn = False
-        self.update()
-        self.p.menu.update()
+        bluetooth.disconection()
+        self.p.update()
 
     def get_robot_data(self):
         # {"name": "Карта 1", "type": "data", "data": "Данные карты"}
-        map, ok = Bluetooth.get_map()
-        self.update()
+        map, ok = bluetooth.get_map()
+        self.p.update()
         if not ok:
             self.p.statusbar.showMessage("Не удалось получить карту")
 
     def clear_robot(self):
-        ok = Bluetooth.clear()
+        ok = bluetooth.clear()
         self.update()
         if not ok:
             self.p.statusbar.showMessage("Не удалось очистить память")
@@ -229,13 +236,17 @@ class Menu:
         self.update()
 
     def update(self):
-        if self.p.is_conn:
+        if bluetooth.is_connected():
             self.p.action_load.setEnabled(True)
         else:
             self.p.action_load.setEnabled(False)
 
     def open_file(self):
-        pass
+        filename = QFileDialog.getOpenFileName(self.p, "Открыть файл", '')[0]
+        with open(filename, mode='r', encoding='utf-8') as file:
+            map_text = file.read().rstrip()
+            map.setMap(filename, map_text)
+        self.p.update()
 
     def save_file(self):
         pass
