@@ -1,12 +1,14 @@
 import sys
 
 import Bluetooth
+from MapPy import Map
 
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6 import QtCore, QtWidgets
 
 from PyQt6.QtWidgets import QPushButton, QButtonGroup
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -20,6 +22,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi('MainWindow.ui', self)
 
+        self.map = Map
         self.map_type = "empty"
         self.is_conn = Bluetooth.is_connected()
 
@@ -36,14 +39,45 @@ class TabMap:
         super().__init__()
         self.p = parent
 
-        map_type = self.p.map_type
+        self.p.undo_btn.clicked.connect(self.undo)
+        self.p.recover_btn.clicked.connect(self.recover)
+        self.p.cursor_btn.clicked.connect(self.mode_cursor)
+        self.p.poligon_btn.clicked.connect(self.draw_poligon)
+        self.p.del_poligon_btn.clicked.connect(self.del_poligon)
+        self.p.finish_btn.clicked.connect(self.create_finish)
 
-        if map_type == "empty":
+        map_html = QtCore.QUrl("https://yandex.ru/maps/213/moscow/?ll=37.586333%2C55.772715&source=serp_navig&z=10")
+        self.map_view = QWebEngineView(self.p.map_widget)
+        self.p.map_layout.addWidget(self.map_view)
+        self.map_view.load(map_html)
+
+        self.update()
+
+    def update(self):
+        if self.p.map_type == "empty":
             self.p.edit_map_widget.show()
-        elif map_type == "edit":
+        elif self.p.map_type == "edit":
             self.p.edit_map_widget.show()
         else:
             self.p.edit_map_widget.hide()
+
+    def undo(self):
+        pass
+
+    def recover(self):
+        pass
+
+    def mode_cursor(self):
+        pass
+
+    def draw_poligon(self):
+        pass
+
+    def del_poligon(self):
+        pass
+
+    def create_finish(self):
+        pass
 
 
 class TabRobot:
@@ -158,6 +192,7 @@ class TabRobot:
         else:
             self.p.is_conn = False
         self.update()
+        self.p.menu.update()
         if not self.p.is_conn:
             self.p.statusbar.showMessage(f"Не удалось подключиться к устройству {name}")
 
@@ -165,6 +200,7 @@ class TabRobot:
         Bluetooth.disconection()
         self.p.is_conn = False
         self.update()
+        self.p.menu.update()
 
     def get_robot_data(self):
         # {"name": "Карта 1", "type": "data", "data": "Данные карты"}
@@ -190,6 +226,9 @@ class Menu:
         self.p.action_save_as.triggered.connect(self.save_as_file)
         self.p.action_load.triggered.connect(self.p.load_file)
 
+        self.update()
+
+    def update(self):
         if self.p.is_conn:
             self.p.action_load.setEnabled(True)
         else:

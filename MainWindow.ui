@@ -102,13 +102,9 @@
           </item>
           <item>
            <widget class="QWidget" name="map_widget" native="true">
-            <layout class="QGridLayout" name="gridLayout_9">
+            <layout class="QGridLayout" name="layout">
              <item row="0" column="0">
-              <widget class="QLabel" name="map_test_lable">
-               <property name="text">
-                <string>Тест</string>
-               </property>
-              </widget>
+              <layout class="QGridLayout" name="map_layout"/>
              </item>
             </layout>
            </widget>
@@ -404,6 +400,19 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item row="0" column="1">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
