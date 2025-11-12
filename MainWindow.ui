@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>940</width>
-    <height>689</height>
+    <width>754</width>
+    <height>649</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -236,7 +236,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QLabel" name="label_8">
+                <widget class="QLabel" name="divices_label">
                  <property name="text">
                   <string>Доступные устройства:</string>
                  </property>
@@ -301,7 +301,7 @@
                <item>
                 <widget class="QWidget" name="search_info_widget" native="true">
                  <layout class="QGridLayout" name="gridLayout_4">
-                  <item row="1" column="0">
+                  <item row="0" column="0">
                    <layout class="QVBoxLayout" name="serch_info_vl" stretch="0,1,1,0,0">
                     <item>
                      <widget class="QLabel" name="label_4">
@@ -407,7 +407,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>940</width>
+     <width>754</width>
      <height>26</height>
     </rect>
    </property>

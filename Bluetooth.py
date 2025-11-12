@@ -1,3 +1,5 @@
+connection = False
+# {"name": name, "device": devices[name]}
 current_device = None
 devices = {
     "Robot1 - Режим ожидания":  {"adress": "",
@@ -17,15 +19,50 @@ def get_dev_names():
     return devices
 
 def is_connected():
-    return False
+    global connection
+    return connection
 
 def get_connection(name):
-    global current_device
+    global connection, current_device
+    connection = True
     current_device = {"name": name, "device": devices[name]}
     return True
 
-def get_info():
-    return current_device
-
 def disconection():
+    global connection, current_device
+    connection = False
+    current_device = None
     pass
+
+def get_info():
+    global connection, current_device
+    if connection:
+        ok = True
+    else:
+        ok = False
+    return current_device, ok
+
+def get_map():
+    global connection
+
+    map = {"name": "Карта 1", "type": "data", "data": "Данные карты"}
+    if connection:
+        ok = True
+    else:
+        ok = False
+    return map, ok
+
+def clear():
+    global devices, current_device
+
+    if connection:
+        ok = True
+    else:
+        ok = False
+
+    name = current_device["name"]
+    devices[name]["info"]["mode"] = "Режим ожидания"
+    devices[name]["info"][ "search_info"] = None
+    current_device = {"name": name, "device": devices[name]}
+
+    return ok
