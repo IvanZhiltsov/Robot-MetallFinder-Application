@@ -64,6 +64,11 @@ class TabRobot:
     def update(self):
         self.p.statusbar.clearMessage()
 
+        if Bluetooth.is_bluetooth():
+            self.p.is_bluetooth_lable.clear()
+        else:
+            self.p.is_bluetooth_lable.setText("Нет подключения к Bluetooth!!")
+
         if self.p.is_conn:
             self.update_info()
 
@@ -84,9 +89,16 @@ class TabRobot:
 
         if not ok:
             self.p.statusbar.showMessage("Не удалось получить информацию о роботе")
-            self.update()
+
+            self.p.info_widget.hide()
+
+            self.p.get_data_btn.setEnabled(False)
+            self.p.clear_btn.setEnabled(False)
+            self.p.load_btn.setEnabled(False)
 
         else:
+            self.p.load_btn.setEnabled(True)
+
             self.p.name_lable.setText(f"Имя робота: {data['name']}")
 
             # {"mode": str, "current_power": int %, "search_info": dict}
@@ -127,7 +139,7 @@ class TabRobot:
         names = Bluetooth.get_dev_names()
 
         if len(names) == 0:
-            self.p.divices_label.setText("Нет устройств")
+            self.p.divices_label.setText("Не найдены устройства для подключения")
 
         else:
             self.p.divices_label.setText("Доступные устройства:")
@@ -146,6 +158,8 @@ class TabRobot:
         else:
             self.p.is_conn = False
         self.update()
+        if not self.p.is_conn:
+            self.p.statusbar.showMessage(f"Не удалось подключиться к устройству {name}")
 
     def disconnection(self):
         Bluetooth.disconection()
@@ -155,14 +169,15 @@ class TabRobot:
     def get_robot_data(self):
         # {"name": "Карта 1", "type": "data", "data": "Данные карты"}
         map, ok = Bluetooth.get_map()
+        self.update()
         if not ok:
             self.p.statusbar.showMessage("Не удалось получить карту")
-            self.update()
 
     def clear_robot(self):
-        if not Bluetooth.clear():
-            self.p.statusbar.showMessage("Не удалось очистить память")
+        ok = Bluetooth.clear()
         self.update()
+        if not ok:
+            self.p.statusbar.showMessage("Не удалось очистить память")
 
 
 class Menu:

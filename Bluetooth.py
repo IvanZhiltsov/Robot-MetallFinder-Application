@@ -11,8 +11,11 @@ devices = {
     "Robot3 - Окончил работу": {"adress": "",
      "info": {"mode":"Окончил работу", "current_power": 40,
               "search_info": {"places": 2, "spent_time": 90, "spent_power": 60}}}
-    }
+   }
 
+
+def is_bluetooth():
+    return True
 
 def get_dev_names():
     global devices
