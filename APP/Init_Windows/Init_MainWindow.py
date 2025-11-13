@@ -15,6 +15,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('Windows_Templates_UI/MainWindow.ui', self)
+        self.showMaximized()
 
         self.tabWidget.setCurrentIndex(0)
 
