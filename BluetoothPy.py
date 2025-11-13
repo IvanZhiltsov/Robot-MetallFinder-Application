@@ -43,7 +43,7 @@ class Bluetooth:
         return self.current_device, ok
 
     def get_map(self):
-        geo_map = {"name": "Карта 1", "type": "data", "data": "Данные карты"}
+        geo_map = {"map_text": "data", "name": "Данные с робота"}
         if self.connection:
             ok = True
         else:

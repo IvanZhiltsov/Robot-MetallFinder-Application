@@ -216,10 +216,12 @@ class TabRobot:
         self.p.update()
 
     def get_robot_data(self):
-        # {"name": "Карта 1", "type": "data", "data": "Данные карты"}
-        map, ok = bluetooth.get_map()
+        # {"name": str, "map_text": str}
+        geo_map, ok = bluetooth.get_map()
         if not ok:
             self.p.status_text = "Не удалось получить карту"
+        else:
+            curr_map.setMap(*geo_map)
         self.p.update()
 
     def clear_robot(self):
