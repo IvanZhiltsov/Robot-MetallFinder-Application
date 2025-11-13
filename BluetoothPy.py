@@ -43,12 +43,12 @@ class Bluetooth:
         return self.current_device, ok
 
     def get_map(self):
-        map = {"name": "Карта 1", "type": "data", "data": "Данные карты"}
+        geo_map = {"name": "Карта 1", "type": "data", "data": "Данные карты"}
         if self.connection:
             ok = True
         else:
             ok = False
-        return map, ok
+        return geo_map, ok
 
     def clear(self):
         if self.connection:
@@ -61,4 +61,16 @@ class Bluetooth:
         self.devices[name]["info"][ "search_info"] = None
         self.current_device = {"name": name, "device": self.devices[name]}
 
+        return ok
+
+    def push_file(self):
+        if self.connection:
+            ok = True
+        else:
+            ok = False
+
+        name = self.current_device["name"]
+        self.devices[name]["info"]["mode"] = "Рабочий режим"
+        self.devices[name]["info"][ "search_info"] = None
+        self.current_device = {"name": name, "device": self.devices[name]}
         return ok
