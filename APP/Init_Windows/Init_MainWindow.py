@@ -243,7 +243,8 @@ class Menu:
         if ok:
             with open(filename, mode='r', encoding='utf-8') as file:
                 map_text = file.read()
-                curr_map.setMap(map_text, filename)
+                if not curr_map.setMap(map_text, filename):
+                    self.p.status_text = "Не удалось открыть файл неизвестного типа"
             self.p.update()
 
     def save_file(self):

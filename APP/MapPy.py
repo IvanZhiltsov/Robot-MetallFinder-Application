@@ -5,11 +5,19 @@ class Map:
             self.type = "empty"
             self.data = None
         else:
-            self.setMap(map_text, name)
+            if not self.setMap(map_text, name):
+                self.name = name
+                self.type = "other"
+                self.data = None
 
     def setMap(self, map_txt, name=None):
+        if map_txt == "other":
+            return False
+
         self.name = name
         self.type = map_txt.rstrip()
         self.data = map_txt
+        return True
+
 
 curr_map = Map()

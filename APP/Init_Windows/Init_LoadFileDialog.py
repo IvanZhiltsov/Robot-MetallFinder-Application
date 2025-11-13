@@ -32,6 +32,11 @@ class LoadFileDialog(QDialog):
             self.status_label.show()
         self.status_text = None
 
+        if curr_map.type != "edit":
+            self.open_current_btn.setEnabled(False)
+        else:
+            self.open_current_btn.setEnabled(True)
+
         if self.geo_map is None:
             self.push_file_btn.hide()
             self.info_widget.hide()
@@ -40,6 +45,11 @@ class LoadFileDialog(QDialog):
             self.push_file_btn.show()
             self.info_widget.show()
             self.name_label.show()
+
+            if self.geo_map.name is None:
+                self.name_label.setText("Без имени")
+            else:
+                self.name_label.setText(curr_map.name)
 
             self.update_info()
 
