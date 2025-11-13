@@ -118,8 +118,6 @@ class TabRobot:
         self.update()
 
     def update(self):
-        self.p.statusbar.clearMessage()
-
         if bluetooth.is_bluetooth():
             self.p.is_bluetooth_lable.clear()
         else:
@@ -144,7 +142,7 @@ class TabRobot:
         data, ok = bluetooth.get_info()
 
         if not ok:
-            self.p.statusbar.showMessage("Не удалось получить информацию о роботе")
+            self.p.statusBar().showMessange("Не удалось получить информацию о роботе")
 
             self.p.info_widget.hide()
 
@@ -196,7 +194,6 @@ class TabRobot:
 
         if len(names) == 0:
             self.p.divices_label.setText("Не найдены устройства для подключения")
-
         else:
             self.p.divices_label.setText("Доступные устройства:")
 
@@ -210,9 +207,9 @@ class TabRobot:
     def get_connection(self):
         name = self.p.sender().text()
         bluetooth.get_connection(name)
-        self.p.update()
         if not bluetooth.is_connected():
-            self.p.statusbar.showMessage(f"Не удалось подключиться к устройству {name}")
+            self.p.status_text = f"Не удалось подключиться к устройству {name}"
+        self.p.update()
 
     def disconnection(self):
         bluetooth.disconection()
@@ -221,15 +218,15 @@ class TabRobot:
     def get_robot_data(self):
         # {"name": "Карта 1", "type": "data", "data": "Данные карты"}
         map, ok = bluetooth.get_map()
-        self.p.update()
         if not ok:
-            self.p.statusbar.showMessage("Не удалось получить карту")
+            self.p.status_text = "Не удалось получить карту"
+        self.p.update()
 
     def clear_robot(self):
         ok = bluetooth.clear()
-        self.update()
         if not ok:
-            self.p.statusbar.showMessage("Не удалось очистить память")
+            self.p.status_text = "Не удалось очистить память"
+        self.update()
 
 
 class Menu:
