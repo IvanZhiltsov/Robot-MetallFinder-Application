@@ -74,3 +74,6 @@ class Bluetooth:
         self.devices[name]["info"][ "search_info"] = None
         self.current_device = {"name": name, "device": self.devices[name]}
         return ok
+
+
+bluetooth = Bluetooth()

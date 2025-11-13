@@ -11,3 +11,5 @@ class Map:
         self.name = name
         self.type = map_txt.rstrip()
         self.data = map_txt
+
+curr_map = Map()
