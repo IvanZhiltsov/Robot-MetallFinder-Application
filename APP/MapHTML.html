@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <title>Карта</title>
+        <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+    </head>
+    <body>
+
+        <script>
+            var map;
+            var polygon;
+            var polygonCords = [[
+                    [55.778607,37.553126],
+                    [55.792923,37.647883],
+                    [55.724391,37.709681],
+                    [55.708887,37.583339]
+                ]];
+
+            const clickCallback = function(event){
+                let coordinates = event.get('coords');
+                polygonCords.push(coordinates);
+                alert(polygonCords);
+                update();
+            };
+
+            ymaps.ready(init);
+            function init(){
+                map = new ymaps.Map ('app', {
+                    center: [55.75, 37.61],
+                    zoom: 12
+                });
+
+                polygon = new ymaps.Polygon(polygonCords)
+                map.geoObjects.add(polygon);
+
+                map.events.add('click', clickCallback);
+
+                update();
+            };
+
+            function update(){
+                polygon.geometry.setCoordinates(polygonCords);
+            };
+
+        </script>
+
+        <div id="app" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;">
+        </div>
+    </body>
+</html>

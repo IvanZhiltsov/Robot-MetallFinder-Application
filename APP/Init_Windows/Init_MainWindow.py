@@ -1,11 +1,10 @@
 from APP.Init_Windows.Init_LoadFileDialog import LoadFileDialog
 
-from APP.MapPy import Map, curr_map
+from APP.MapPy import *
 from APP.BluetoothPy import bluetooth
 
 from PyQt6 import uic
 from PyQt6.QtWidgets import QMainWindow
-from PyQt6 import QtCore
 
 from PyQt6.QtWidgets import QPushButton, QButtonGroup, QFileDialog
 from PyQt6.QtWebEngineWidgets import QWebEngineView
@@ -22,6 +21,8 @@ class MainWindow(QMainWindow):
         self.tab_robot = TabRobot(self)
         self.tab_map = TabMap(self)
         self.menu = Menu(self)
+
+        self.map_html = None
 
         self.load_file_dialog = None
 
@@ -60,10 +61,12 @@ class TabMap:
         self.p.del_poligon_btn.clicked.connect(self.del_poligon)
         self.p.finish_btn.clicked.connect(self.create_finish)
 
-        map_html = QtCore.QUrl("https://yandex.ru/maps/213/moscow/?ll=37.586333%2C55.772715&source=serp_navig&z=10")
         self.map_view = QWebEngineView(self.p.map_widget)
         self.p.map_layout.addWidget(self.map_view)
-        self.map_view.load(map_html)
+
+        with open("MapHTML.html", mode="r", encoding="utf-8") as html_file:
+            self.p.map_html = html_file.read()
+        self.map_view.setHtml(self.p.map_html)
 
         self.update()
 
