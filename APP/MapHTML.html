@@ -1,55 +1,74 @@
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <title>Карта</title>
-        <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
-    </head>
-    <body>
+<head>
+    <title>Карта</title>
+</head>
+<body>
 
-        <script>
-            var map;
-            var polygon;
-            var polygonCords = [[
-                    [55.778607,37.553126],
-                    [55.792923,37.647883],
-                    [55.724391,37.709681],
-                    [55.708887,37.583339]
-                ]];
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+<script>
+var ymap;
 
-            const clickCallback = function(event){
-                let coordinates = event.get('coords');
-                polygonCords.push(coordinates);
-                alert(polygonCords);
-                update();
-            };
+var map_type;
+var map_data;
 
-            ymaps.ready(init);
-            function init(){
-                map = new ymaps.Map ('app', {
-                    center: [55.75, 37.61],
-                    zoom: 12
-                });
+var polygon_cords = []
 
-                polygon = new ymaps.Polygon(polygonCords)
-                map.geoObjects.add(polygon);
+function helloWorld() {
+	alert('Hello world');
+	return 'OK';
+}
 
-                map.events.add('click', clickCallback);
+new QWebChannel(qt.webChannelTransport, async function (channel) {
+	backend = await channel.objects.backend;
+	init(backend);
+});
 
-                update();
-            };
+function initYMap() {
+	ymap = new ymaps.Map ('app', {
+		center: [55.75, 37.61],
+		zoom: 12
+	});
 
-            function update(){
-                polygon.geometry.setCoordinates(polygonCords);
-            };
+	draw_polygon();
+};
 
-        </script>
+async function init(backend) {
+	ymaps.ready(initYMap);
 
-        <div id="app" style="
+	map_js = await backend.get_map();
+	[map_type, map_data] = await JSON.parse(map_js);
+};
+
+function draw_polygon() {
+	alert('draw polygon');
+
+	ymap.events.add('click', leftClick_fixMark);
+	ymap.events.add('contextmenu', rightClick_fixPolygon);
+};
+
+const leftClick_fixMark = function (event) {
+	cords = event.get('coords');
+	polygon_cords.push(cords);
+
+	let placemark = new ymaps.Placemark(cords);
+	ymap.geoObjects.add(placemark);
+};
+
+const rightClick_fixPolygon = function (event) {
+	alert('right click');
+	let polygon = new ymaps.Polygon([polygon_cords,[]]);
+	ymap.geoObjects.add(polygon);
+};
+</script>
+
+<div id="app" style="
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;">
-        </div>
-    </body>
+</div>
+</body>
 </html>

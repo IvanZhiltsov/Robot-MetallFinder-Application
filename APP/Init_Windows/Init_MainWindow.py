@@ -7,7 +7,11 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QMainWindow
 
 from PyQt6.QtWidgets import QPushButton, QButtonGroup, QFileDialog
+from PyQt6.QtCore import pyqtSlot, pyqtSignal
+
+from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebChannel import QWebChannel
 
 
 class MainWindow(QMainWindow):
@@ -18,11 +22,13 @@ class MainWindow(QMainWindow):
 
         self.tabWidget.setCurrentIndex(0)
 
+        self.map_view = WebEngineMap(self.map_widget)
+        self.map_layout.addWidget(self.map_view)
+        self.map_html = None
+
         self.tab_robot = TabRobot(self)
         self.tab_map = TabMap(self)
         self.menu = Menu(self)
-
-        self.map_html = None
 
         self.load_file_dialog = None
 
@@ -49,6 +55,32 @@ class MainWindow(QMainWindow):
         self.load_file_dialog.show()
 
 
+class WebEngineMap(QWebEngineView):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+
+        self.map_page = QWebEnginePage(self)
+        self.setPage(self.map_page)
+
+        self.channel = QWebChannel(self)
+        self.channel.registerObject('backend', self)
+        self.page().setWebChannel(self.channel)
+
+        self.test = False
+        self.text = None
+
+    @pyqtSlot(result=str)
+    def get_map(self):
+        return curr_map.get_js_for_html()
+
+    def hello(self):
+        self.page().runJavaScript("helloWorld()", self.ready)
+
+    def ready(self, returnValue):
+        print(returnValue)
+
+
 class TabMap:
     def __init__(self, parent):
         super().__init__()
@@ -61,12 +93,9 @@ class TabMap:
         self.p.del_poligon_btn.clicked.connect(self.del_poligon)
         self.p.finish_btn.clicked.connect(self.create_finish)
 
-        self.map_view = QWebEngineView(self.p.map_widget)
-        self.p.map_layout.addWidget(self.map_view)
-
         with open("MapHTML.html", mode="r", encoding="utf-8") as html_file:
             self.p.map_html = html_file.read()
-        self.map_view.setHtml(self.p.map_html)
+        self.p.map_view.map_page.setHtml(self.p.map_html)
 
         self.update()
 
@@ -89,7 +118,7 @@ class TabMap:
         pass
 
     def del_poligon(self):
-        pass
+        self.p.map_view.hello()
 
     def create_finish(self):
         pass
