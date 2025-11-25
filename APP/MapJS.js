@@ -1,15 +1,118 @@
-ymaps.ready(init);
-function init(){
-    var myMap = new ymaps.Map ('app', {
-        center: [55.75, 37.61],
-        zoom: 10
-    });
+var ymap;
+var backend;
 
-    var myPolygon = new ymaps.Polygon([[
-        [55.778607,37.553126],
-        [55.792923,37.647883],
-        [55.724391,37.709681],
-        [55.708887,37.583339]
-    ]]);
-    myMap.geoObjects.add(myPolygon);
-}
+var map_type;
+var map_data;
+
+var polygon_cords = [];
+var pointsCollection;
+var curr_point;
+var linesCollection;
+var polygon;
+
+function helloWorld() {
+	alert('Hello world');
+	return 'OK';
+};
+
+new QWebChannel(qt.webChannelTransport, async function (channel) {
+	backend = await channel.objects.backend;
+	init();
+});
+
+async function init() {
+    map_js = await backend.get_map();
+	[map_type, map_data] = await JSON.parse(map_js);
+
+	ymaps.ready(initYMap);
+};
+
+function initYMap() {
+	ymap = new ymaps.Map ('app', {
+		center: [55.75, 37.61],
+		zoom: 12
+	});
+
+    switch (map_type) {
+    case 'empty':
+        start_draw_polygon();
+        break;
+    case 'edit':
+        break;
+    case 'data':
+        break;
+    };
+};
+
+function start_draw_polygon() {
+    pointsCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(pointsCollection);
+
+    linesCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(linesCollection);
+
+	ymap.events.add('click', leftClick_fixMark);
+	ymap.events.add('contextmenu', rightClick_fixPolygon);
+};
+
+const leftClick_fixMark = function (event) {
+	cords = event.get('coords');
+	polygon_cords.push(cords);
+
+	let placemark = new ymaps.Placemark(cords);
+	pointsCollection.add(placemark);
+
+    let polygon_long = polygon_cords.length
+    let line;
+
+    if (polygon_long == 2) {
+        line = new ymaps.Polyline([
+            polygon_cords[polygon_long - 1],
+            polygon_cords[polygon_long - 2],
+        ]);
+        linesCollection.add(line);
+	}
+
+	else if (polygon_long == 3) {
+	    line = new ymaps.Polyline([
+            polygon_cords[polygon_long - 1],
+            polygon_cords[polygon_long - 2],
+        ]);
+        linesCollection.add(line);
+
+	    line = new ymaps.Polyline([
+            polygon_cords[0],
+            polygon_cords[polygon_long - 1],
+        ], {}, {strokeStyle: 'dot'});
+        linesCollection.add(line);
+    }
+
+    else if (polygon_long > 3) {
+        linesCollection.remove();
+
+        line = new ymaps.Polyline([
+            polygon_cords[polygon_long - 1],
+            polygon_cords[polygon_long - 2],
+        ]);
+        linesCollection.add(line);
+
+        line = new ymaps.Polyline([
+            polygon_cords[0],
+            polygon_cords[polygon_long - 1],
+        ], {}, {strokeStyle: 'dot'});
+        linesCollection.add(line);
+    };
+};
+
+const rightClick_fixPolygon = function (event) {
+    if (polygon_cords.length > 2) {
+	    polygon = new ymaps.Polygon([polygon_cords,[]]);
+	    ymap.geoObjects.add(polygon);
+	}
+
+	else {
+	    polygon_cords = [];
+	    pointsCollection.removeAll();
+	};
+	linesCollection.removeAll();
+};

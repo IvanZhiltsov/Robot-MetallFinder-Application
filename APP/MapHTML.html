@@ -9,21 +9,33 @@
 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 <script>
 var ymap;
+var backend;
 
 var map_type;
 var map_data;
 
-var polygon_cords = []
+var polygon_cords = [];
+var pointsCollection;
+var curr_point;
+var linesCollection;
+var polygon;
 
 function helloWorld() {
 	alert('Hello world');
 	return 'OK';
-}
+};
 
 new QWebChannel(qt.webChannelTransport, async function (channel) {
 	backend = await channel.objects.backend;
-	init(backend);
+	init();
 });
+
+async function init() {
+    map_js = await backend.get_map();
+	[map_type, map_data] = await JSON.parse(map_js);
+
+	ymaps.ready(initYMap);
+};
 
 function initYMap() {
 	ymap = new ymaps.Map ('app', {
@@ -31,18 +43,23 @@ function initYMap() {
 		zoom: 12
 	});
 
-	draw_polygon();
+    switch (map_type) {
+    case 'empty':
+        start_draw_polygon();
+        break;
+    case 'edit':
+        break;
+    case 'data':
+        break;
+    };
 };
 
-async function init(backend) {
-	ymaps.ready(initYMap);
+function start_draw_polygon() {
+    pointsCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(pointsCollection);
 
-	map_js = await backend.get_map();
-	[map_type, map_data] = await JSON.parse(map_js);
-};
-
-function draw_polygon() {
-	alert('draw polygon');
+    linesCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(linesCollection);
 
 	ymap.events.add('click', leftClick_fixMark);
 	ymap.events.add('contextmenu', rightClick_fixPolygon);
@@ -53,13 +70,61 @@ const leftClick_fixMark = function (event) {
 	polygon_cords.push(cords);
 
 	let placemark = new ymaps.Placemark(cords);
-	ymap.geoObjects.add(placemark);
+	pointsCollection.add(placemark);
+
+    let polygon_long = polygon_cords.length
+    let line;
+
+    if (polygon_long == 2) {
+        line = new ymaps.Polyline([
+            polygon_cords[polygon_long - 1],
+            polygon_cords[polygon_long - 2],
+        ]);
+        linesCollection.add(line);
+	}
+
+	else if (polygon_long == 3) {
+	    line = new ymaps.Polyline([
+            polygon_cords[polygon_long - 1],
+            polygon_cords[polygon_long - 2],
+        ]);
+        linesCollection.add(line);
+
+	    line = new ymaps.Polyline([
+            polygon_cords[0],
+            polygon_cords[polygon_long - 1],
+        ], {}, {strokeStyle: 'dot'});
+        linesCollection.add(line);
+    }
+
+    else if (polygon_long > 3) {
+        linesCollection.remove();
+
+        line = new ymaps.Polyline([
+            polygon_cords[polygon_long - 1],
+            polygon_cords[polygon_long - 2],
+        ]);
+        linesCollection.add(line);
+
+        line = new ymaps.Polyline([
+            polygon_cords[0],
+            polygon_cords[polygon_long - 1],
+        ], {}, {strokeStyle: 'dot'});
+        linesCollection.add(line);
+    };
 };
 
 const rightClick_fixPolygon = function (event) {
-	alert('right click');
-	let polygon = new ymaps.Polygon([polygon_cords,[]]);
-	ymap.geoObjects.add(polygon);
+    if (polygon_cords.length > 2) {
+	    polygon = new ymaps.Polygon([polygon_cords,[]]);
+	    ymap.geoObjects.add(polygon);
+	}
+
+	else {
+	    polygon_cords = [];
+	    pointsCollection.removeAll();
+	};
+	linesCollection.removeAll();
 };
 </script>
 
