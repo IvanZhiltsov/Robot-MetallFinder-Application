@@ -5,7 +5,7 @@
 </head>
 <body>
 
-<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+<script src="https://api-maps.yandex.ru/2.1/?apikey=e908d53c-26b4-4472-a88f-ecb704b3a21c&lang=ru_RU"></script>
 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 <script>
 var ymap;
@@ -16,13 +16,14 @@ var map_data;
 
 var polygon_cords = [];
 var pointsCollection;
-var curr_point;
 var linesCollection;
-var polygon;
+var polygonCollection;
 
-function helloWorld() {
-	alert('Hello world');
-	return 'OK';
+function del_polygon() {
+	polygon_cords = [];
+	pointsCollection.removeAll();
+	linesCollection.removeAll();
+	polygonCollection.removeAll();
 };
 
 new QWebChannel(qt.webChannelTransport, async function (channel) {
@@ -45,7 +46,6 @@ function initYMap() {
 
     switch (map_type) {
     case 'empty':
-        start_draw_polygon();
         break;
     case 'edit':
         break;
@@ -60,6 +60,9 @@ function start_draw_polygon() {
 
     linesCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(linesCollection);
+
+    polygonCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(polygonCollection);
 
 	ymap.events.add('click', leftClick_fixMark);
 	ymap.events.add('contextmenu', rightClick_fixPolygon);
@@ -116,8 +119,12 @@ const leftClick_fixMark = function (event) {
 
 const rightClick_fixPolygon = function (event) {
     if (polygon_cords.length > 2) {
-	    polygon = new ymaps.Polygon([polygon_cords,[]]);
-	    ymap.geoObjects.add(polygon);
+	    polygon = new ymaps.Polygon([polygon_cords, []], {}, {draggable: true});
+	    polygonCollection.add(polygon);
+
+	    ymap.events.remove('click', leftClick_fixMark);
+	    ymap.events.remove('contextmenu', rightClick_fixPolygon);
+	    backend.finish_draw();
 	}
 
 	else {

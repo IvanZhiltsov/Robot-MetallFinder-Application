@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
 
         self.tabWidget.setCurrentIndex(0)
 
-        self.map_view = WebEngineMap(self.map_widget)
+        self.map_view = WebEngineMap(self.map_widget, self)
         self.map_layout.addWidget(self.map_view)
         self.map_html = None
 
@@ -56,9 +56,10 @@ class MainWindow(QMainWindow):
 
 
 class WebEngineMap(QWebEngineView):
-    def __init__(self, parent):
+    def __init__(self, parent, main_window):
         super().__init__(parent)
         self.parent = parent
+        self.main_window = main_window
 
         self.map_page = QWebEnginePage(self)
         self.setPage(self.map_page)
@@ -74,11 +75,15 @@ class WebEngineMap(QWebEngineView):
     def get_map(self):
         return curr_map.get_js_for_html()
 
-    def hello(self):
-        self.page().runJavaScript("helloWorld()", self.ready)
+    @pyqtSlot()
+    def finish_draw(self):
+        self.main_window.del_poligon_btn.setEnabled(True)
 
-    def ready(self, returnValue):
-        print(returnValue)
+    def del_polygon(self):
+        self.page().runJavaScript("del_polygon()")
+
+    def start_draw_polygon(self):
+        self.page().runJavaScript("start_draw_polygon()")
 
 
 class TabMap:
@@ -89,9 +94,14 @@ class TabMap:
         self.p.undo_btn.clicked.connect(self.undo)
         self.p.recover_btn.clicked.connect(self.recover)
         self.p.cursor_btn.clicked.connect(self.mode_cursor)
-        self.p.poligon_btn.clicked.connect(self.draw_poligon)
-        self.p.del_poligon_btn.clicked.connect(self.del_poligon)
+        self.p.poligon_btn.clicked.connect(self.draw_polygon)
+        self.p.del_poligon_btn.clicked.connect(self.del_polygon)
         self.p.finish_btn.clicked.connect(self.create_finish)
+
+        self.p.undo_btn.setEnabled(False)
+        self.p.recover_btn.setEnabled(False)
+        self.p.del_poligon_btn.setEnabled(False)
+        self.p.finish_btn.setEnabled(False)
 
         with open("MapHTML.html", mode="r", encoding="utf-8") as html_file:
             self.p.map_html = html_file.read()
@@ -114,11 +124,14 @@ class TabMap:
     def mode_cursor(self):
         pass
 
-    def draw_poligon(self):
-        pass
+    def draw_polygon(self):
+        self.p.map_view.start_draw_polygon()
+        self.p.poligon_btn.setEnabled(False)
 
-    def del_poligon(self):
-        self.p.map_view.hello()
+    def del_polygon(self):
+        self.p.map_view.del_polygon()
+        self.p.poligon_btn.setEnabled(True)
+        self.p.del_poligon_btn.setEnabled(False)
 
     def create_finish(self):
         pass
