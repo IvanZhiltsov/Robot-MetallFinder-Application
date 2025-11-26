@@ -1,0 +1,1 @@
+{"type": "edit", "data": {"polygon_cords": [[55.70, 37.30], [55.80, 37.30], [55.80, 37.40], [55.80, 37.30]], "finish_cords": [55.76, 37.56], "metal_cords": null}}

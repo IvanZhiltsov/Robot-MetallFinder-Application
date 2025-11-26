@@ -1,31 +1,42 @@
 var ymap;
 var backend;
 
-var map_type;
-var map_data;
+var mapType;
 
-var polygon_cords = [];
+var polygonCords = [];
 var pointsCollection;
-var curr_point;
 var linesCollection;
+var polygonCollection;
 var polygon;
 
-function helloWorld() {
-	alert('Hello world');
-	return 'OK';
+var finishCords;
+var finishCollection;
+var finishPoint;
+
+var metalCords = [];
+var metalCollection;
+
+
+<!--BACKEND FUNCTIONS-->
+function del_polygon() {
+	polygonCords = [];
+	pointsCollection.removeAll();
+	linesCollection.removeAll();
+	polygonCollection.removeAll();
+
+	finishCollection.removeAll();
+	finishPoint = null;
+
+	let map_object = {type: mapType, data: null};
+	backend.push_data(JSON.stringify(map_object));
 };
 
+
+<!--INIT-->
 new QWebChannel(qt.webChannelTransport, async function (channel) {
 	backend = await channel.objects.backend;
-	init();
-});
-
-async function init() {
-    map_js = await backend.get_map();
-	[map_type, map_data] = await JSON.parse(map_js);
-
 	ymaps.ready(initYMap);
-};
+});
 
 function initYMap() {
 	ymap = new ymaps.Map ('app', {
@@ -33,56 +44,117 @@ function initYMap() {
 		zoom: 12
 	});
 
-    switch (map_type) {
-    case 'empty':
-        start_draw_polygon();
-        break;
-    case 'edit':
-        break;
-    case 'data':
-        break;
-    };
+    createMap();
 };
 
-function start_draw_polygon() {
+function createMap() {
     pointsCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(pointsCollection);
 
     linesCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(linesCollection);
 
+    polygonCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(polygonCollection);
+
+    finishCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(finishCollection);
+
+    metalCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(metalCollection);
+
+    update();
+};
+
+async function update() {
+    pointsCollection.removeAll();
+    linesCollection.removeAll();
+    polygonCollection.removeAll();
+    finishCollection.removeAll();
+    metalCollection.removeAll();
+
+    polygon = null;
+    finishPoint = null
+
+    polygonCords = [];
+    finishCords = [];
+    metalCords = [];
+
+    let map_js = await backend.get_map();
+	let map_object = JSON.parse(map_js);
+	let mapData
+	[mapType, mapData] = Object.values(map_object);
+
+	if (mapType != 'empty') {
+        let {polygonCords: received_polygonCords,
+            finishCords: received_finishCords,
+            metalCords: received_metalCords} = mapData;
+
+        if (received_polygonCords) {
+            polygonCords = received_polygonCords;
+
+            polygon = new ymaps.Polygon([polygonCords, []]);
+            polygonCollection.add(polygon);
+
+            for (let cords of polygonCords) {
+                let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#blueCircleIcon'});
+                pointsCollection.add(placemark);
+            };
+        }
+
+        if (received_finishCords) {
+            finishCords = received_finishCords;
+
+            finishPoint = new ymaps.Placemark(cords, {}, {preset: 'islands#redCircleIcon'});
+            finishCollection.add(finishPoint);
+        }
+
+        if (received_metalCords) {
+            metalCords = received_metalCords;
+
+            for (let cords of metalCords) {
+                let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#yellowIcon'});
+                metalCollection.add(placemark);
+            };
+        };
+    };
+};
+
+
+<!--DRAW POLYGON-->
+function start_draw_polygon() {
 	ymap.events.add('click', leftClick_fixMark);
 	ymap.events.add('contextmenu', rightClick_fixPolygon);
 };
 
 const leftClick_fixMark = function (event) {
-	cords = event.get('coords');
-	polygon_cords.push(cords);
+	let cords = event.get('coords');
+	polygonCords.push(cords);
 
-	let placemark = new ymaps.Placemark(cords);
+	let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#blueCircleIcon'});
 	pointsCollection.add(placemark);
 
-    let polygon_long = polygon_cords.length
+    let polygon_long = polygonCords.length;
     let line;
 
     if (polygon_long == 2) {
         line = new ymaps.Polyline([
-            polygon_cords[polygon_long - 1],
-            polygon_cords[polygon_long - 2],
+            polygonCords[polygon_long - 1],
+            polygonCords[polygon_long - 2],
         ]);
         linesCollection.add(line);
 	}
 
 	else if (polygon_long == 3) {
 	    line = new ymaps.Polyline([
-            polygon_cords[polygon_long - 1],
-            polygon_cords[polygon_long - 2],
+            polygonCords[polygon_long - 1],
+            polygonCords[polygon_long - 2],
         ]);
         linesCollection.add(line);
 
 	    line = new ymaps.Polyline([
-            polygon_cords[0],
-            polygon_cords[polygon_long - 1],
+            polygonCords[0],
+            polygonCords[polygon_long - 1],
         ], {}, {strokeStyle: 'dot'});
         linesCollection.add(line);
     }
@@ -91,28 +163,93 @@ const leftClick_fixMark = function (event) {
         linesCollection.remove();
 
         line = new ymaps.Polyline([
-            polygon_cords[polygon_long - 1],
-            polygon_cords[polygon_long - 2],
+            polygonCords[polygon_long - 1],
+            polygonCords[polygon_long - 2],
         ]);
         linesCollection.add(line);
 
         line = new ymaps.Polyline([
-            polygon_cords[0],
-            polygon_cords[polygon_long - 1],
+            polygonCords[0],
+            polygonCords[polygon_long - 1],
         ], {}, {strokeStyle: 'dot'});
         linesCollection.add(line);
     };
 };
 
 const rightClick_fixPolygon = function (event) {
-    if (polygon_cords.length > 2) {
-	    polygon = new ymaps.Polygon([polygon_cords,[]]);
-	    ymap.geoObjects.add(polygon);
+    if (polygonCords.length > 2) {
+	    polygon = new ymaps.Polygon([polygonCords, []]);
+	    polygonCollection.add(polygon);
+
+	    ymap.events.remove('click', leftClick_fixMark);
+	    ymap.events.remove('contextmenu', rightClick_fixPolygon);
+
+	    let map_object = {type: mapType, data: {
+	        polygonCords: polygonCords,
+	        finishCords: null,
+	        metalCords: null}
+	        };
+	    backend.push_data(JSON.stringify(map_object));
+
+	    backend.finish_draw();
 	}
 
 	else {
-	    polygon_cords = [];
+	    polygonCords = [];
 	    pointsCollection.removeAll();
+	    polygon = null;
 	};
 	linesCollection.removeAll();
+};
+
+
+<!--DRAW FINISH-->
+function start_draw_finish() {
+    finishCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(finishCollection);
+
+    ymap.events.add('click', leftClick_fixFinish);
+	ymap.events.add('contextmenu', rightClick_delFinish);
+
+	polygon.events.add('click', leftClick_fixFinish);
+	polygon.events.add('contextmenu', rightClick_delFinish);
+};
+
+const leftClick_fixFinish = function (event) {
+    let cords = event.get('coords');
+
+    if (polygon.geometry.contains(cords)) {
+        finishCords = cords;
+
+        finishPoint = new ymaps.Placemark(cords, {}, {preset: 'islands#redCircleIcon'});
+	    finishCollection.add(finishPoint);
+
+        ymap.events.remove('click', leftClick_fixFinish);
+	    ymap.events.remove('contextmenu', rightClick_delFinish);
+
+	    polygon.events.remove('click', leftClick_fixFinish);
+	    polygon.events.remove('contextmenu', rightClick_delFinish);
+
+	    let map_object = {type: mapType, data: {
+	        polygonCords: polygonCords,
+	        finishCords: finishCords,
+	        metalCords: null}
+	    };
+	    backend.push_data();
+
+	    backend.fix_finish();
+    }
+
+    else alert('Error: cannot set finish point outside polygon');
+};
+
+const rightClick_delFinish = function (event) {
+    finishCollection.removeAll();
+    finishPoint = null;
+
+    ymap.events.remove('click', leftClick_fixFinish);
+	ymap.events.remove('contextmenu', rightClick_delFinish);
+
+	polygon.events.remove('click', leftClick_fixFinish);
+	polygon.events.remove('contextmenu', rightClick_delFinish);
 };

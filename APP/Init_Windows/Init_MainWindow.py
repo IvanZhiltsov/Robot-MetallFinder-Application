@@ -85,6 +85,9 @@ class WebEngineMap(QWebEngineView):
     def fix_finish(self):
         self.main_window.finish_btn.setEnabled(False)
 
+    def update_map(self):
+        self.page().runJavaScript("update()")
+
     def del_polygon(self):
         self.page().runJavaScript("del_polygon()")
 
@@ -267,7 +270,7 @@ class TabRobot:
         if not ok:
             self.p.status_text = "Не удалось получить карту"
         else:
-            curr_map.setMap(*geo_map)
+            curr_map.set_map(*geo_map)
         self.p.update()
 
     def clear_robot(self):
@@ -299,8 +302,10 @@ class Menu:
         filename, ok = QFileDialog.getOpenFileName(self.p, "Открыть файл", '')
         if ok:
             with open(filename, mode='r', encoding='utf-8') as file:
-                map_text = file.read()
-                if not curr_map.setMap(map_text, filename):
+                map_js = file.read().rstrip()
+                if curr_map.set_map(map_js):
+                    self.p.map_view.update_map()
+                else:
                     self.p.status_text = "Не удалось открыть файл неизвестного типа"
             self.p.update()
 
