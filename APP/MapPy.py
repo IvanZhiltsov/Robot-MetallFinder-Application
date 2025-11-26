@@ -32,6 +32,10 @@ class Map:
 
         return True
 
+    def update(self, map_js):
+        map_object = json.loads(map_js)
+        self.type, self.data = map_object.values()
+
     def js_for_save(self):
         map_object = {"key": save_key, "type": self.type, "data": self.data}
         return json.dumps(map_object)

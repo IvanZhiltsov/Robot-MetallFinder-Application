@@ -40,7 +40,7 @@ function del_polygon() {
 	finishCollection.removeAll();
 	finishPoint = null;
 
-	let map_object = {type: mapType, data: null};
+	let map_object = {action: 'del_polygon', map_js: {type: mapType, data: null}};
 	backend.push_data(JSON.stringify(map_object));
 
 	update_btns();
@@ -225,11 +225,11 @@ const rightClick_fixPolygon = function (event) {
 	    ymap.events.remove('click', leftClick_fixMark);
 	    ymap.events.remove('contextmenu', rightClick_fixPolygon);
 
-	    let map_object = {type: mapType, data: {
+	    let map_object = {action: 'fix_polygon', map_js: {type: mapType, data: {
 	        polygonCords: polygonCords,
 	        finishCords: null,
 	        metalCords: null
-	    }};
+	    }}};
 	    backend.push_data(JSON.stringify(map_object));
 	}
 
@@ -268,11 +268,11 @@ const leftClick_fixFinish = function (event) {
 	    polygon.events.remove('click', leftClick_fixFinish);
 	    polygon.events.remove('contextmenu', rightClick_delFinish);
 
-	    let map_object = {type: mapType, data: {
+	    let map_object = {action: 'fix_finish', map_js: {type: mapType, data: {
 	        polygonCords: polygonCords,
 	        finishCords: finishCords,
 	        metalCords: null
-	    }};
+	    }}};
 	    backend.push_data(JSON.stringify(map_object));
 
 	    update_btns();

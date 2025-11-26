@@ -4,6 +4,7 @@ from APP.Init_Windows.Init_LoadFileDialog import LoadFileDialog
 
 from APP.MapPy import *
 from APP.BluetoothPy import bluetooth
+from APP.ActionsManagerPy import actions_manager
 
 from PyQt6 import uic
 from PyQt6.QtWidgets import QMainWindow
@@ -56,6 +57,15 @@ class MainWindow(QMainWindow):
         self.load_file_dialog = LoadFileDialog(self)
         self.load_file_dialog.show()
 
+    def add_action(self, action, data):
+        ends = actions_manager.add_action(action, data)
+        self.chack_actions(ends)
+
+    def chack_actions(self, ends):
+        print(ends)
+        self.undo_btn.setEnabled(ends["undo"])
+        self.recover_btn.setEnabled(ends["recover"])
+
 
 class WebEngineMap(QWebEngineView):
     def __init__(self, parent, main_window):
@@ -83,7 +93,12 @@ class WebEngineMap(QWebEngineView):
 
     @pyqtSlot(str)
     def push_data(self, data):
-        curr_map.get_js_from_html(data)
+        map_object = json.loads(data)
+        action, map_js = map_object.values()
+
+        curr_map.get_js_from_html(json.dumps(map_js))
+
+        self.main_window.add_action(action, json.dumps(map_js))
 
     def update_map(self):
         self.page().runJavaScript("update()")
@@ -127,11 +142,23 @@ class TabMap:
         else:
             self.p.edit_map_widget.hide()
 
+        self.p.add_action("new", curr_map.push_js_for_html())
+
     def undo(self):
-        pass
+        map_js, ends = actions_manager.undo()
+        print(map_js)
+        curr_map.set_map(map_js)
+        curr_map.update(map_js)
+        self.p.map_view.update_map()
+        self.p.chack_actions(ends)
+
 
     def recover(self):
-        pass
+        map_js, ends = actions_manager.recover()
+        print(map_js)
+        curr_map.update(map_js)
+        self.p.map_view.update_map()
+        self.p.chack_actions(ends)
 
     def mode_cursor(self):
         pass
