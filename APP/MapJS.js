@@ -29,6 +29,8 @@ function del_polygon() {
 
 	let map_object = {type: mapType, data: null};
 	backend.push_data(JSON.stringify(map_object));
+
+	update();
 };
 
 
@@ -66,6 +68,8 @@ function createMap() {
     update();
 };
 
+
+<!--UPDATE-->
 async function update() {
     pointsCollection.removeAll();
     linesCollection.removeAll();
@@ -118,6 +122,27 @@ async function update() {
             };
         };
     };
+
+    update_btns();
+};
+
+function update_btns() {
+    let btns = {polygon, del_polygon, finish};
+
+    if (polygon){
+        btns.polygon = false;
+        btns.del_polygon = true;
+    }
+    else {
+        btns.polygon = true;
+        btns.del_polygon = false;
+        btns.finish = false;
+    };
+
+    if (finishPoint) btns.finish = false
+    else btns.finish = true;
+
+    backend.set_btns(JSON.stringify(btns));
 };
 
 
@@ -187,11 +212,11 @@ const rightClick_fixPolygon = function (event) {
 	    let map_object = {type: mapType, data: {
 	        polygonCords: polygonCords,
 	        finishCords: null,
-	        metalCords: null}
-	        };
+	        metalCords: null
+	    }};
 	    backend.push_data(JSON.stringify(map_object));
 
-	    backend.finish_draw();
+	    update_btns();
 	}
 
 	else {
@@ -233,11 +258,11 @@ const leftClick_fixFinish = function (event) {
 	    let map_object = {type: mapType, data: {
 	        polygonCords: polygonCords,
 	        finishCords: finishCords,
-	        metalCords: null}
-	    };
-	    backend.push_data();
+	        metalCords: null
+	    }};
+	    backend.push_data(JSON.stringify(map_object));
 
-	    backend.fix_finish();
+	    update_btns();
     }
 
     else alert('Error: cannot set finish point outside polygon');

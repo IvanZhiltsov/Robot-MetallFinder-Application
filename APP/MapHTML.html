@@ -33,12 +33,15 @@ function del_polygon() {
 	pointsCollection.removeAll();
 	linesCollection.removeAll();
 	polygonCollection.removeAll();
+	polygon = null;
 
 	finishCollection.removeAll();
 	finishPoint = null;
 
 	let map_object = {type: mapType, data: null};
 	backend.push_data(JSON.stringify(map_object));
+
+	update_btns();
 };
 
 
@@ -76,6 +79,8 @@ function createMap() {
     update();
 };
 
+
+<!--UPDATE-->
 async function update() {
     pointsCollection.removeAll();
     linesCollection.removeAll();
@@ -128,6 +133,28 @@ async function update() {
             };
         };
     };
+
+    update_btns();
+};
+
+function update_btns() {
+    let btns = {polygon: null, del_polygon: null, finish: null};
+
+    if (polygon){
+        btns.polygon = false;
+        btns.del_polygon = true;
+
+        if (finishPoint) btns.finish = false
+        else btns.finish = true;
+    }
+
+    else {
+        btns.polygon = true;
+        btns.del_polygon = false;
+        btns.finish = false;
+    };
+
+    backend.set_btns(JSON.stringify(btns));
 };
 
 
@@ -197,11 +224,9 @@ const rightClick_fixPolygon = function (event) {
 	    let map_object = {type: mapType, data: {
 	        polygonCords: polygonCords,
 	        finishCords: null,
-	        metalCords: null}
-	        };
+	        metalCords: null
+	    }};
 	    backend.push_data(JSON.stringify(map_object));
-
-	    backend.finish_draw();
 	}
 
 	else {
@@ -210,14 +235,13 @@ const rightClick_fixPolygon = function (event) {
 	    polygon = null;
 	};
 	linesCollection.removeAll();
+
+	update_btns();
 };
 
 
 <!--DRAW FINISH-->
 function start_draw_finish() {
-    finishCollection = new ymaps.GeoObjectCollection({}, {});
-    ymap.geoObjects.add(finishCollection);
-
     ymap.events.add('click', leftClick_fixFinish);
 	ymap.events.add('contextmenu', rightClick_delFinish);
 
@@ -243,11 +267,11 @@ const leftClick_fixFinish = function (event) {
 	    let map_object = {type: mapType, data: {
 	        polygonCords: polygonCords,
 	        finishCords: finishCords,
-	        metalCords: null}
-	    };
-	    backend.push_data();
+	        metalCords: null
+	    }};
+	    backend.push_data(JSON.stringify(map_object));
 
-	    backend.fix_finish();
+	    update_btns();
     }
 
     else alert('Error: cannot set finish point outside polygon');
@@ -262,6 +286,8 @@ const rightClick_delFinish = function (event) {
 
 	polygon.events.remove('click', leftClick_fixFinish);
 	polygon.events.remove('contextmenu', rightClick_delFinish);
+
+	update_btns();
 };
 </script>
 
