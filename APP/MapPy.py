@@ -27,9 +27,13 @@ class Map:
         self.data = map_txt
         return True
 
-    def get_js_for_html(self):
+    def push_js_for_html(self):
         map_object = [self.type, self.data]
         return json.dumps(map_object)
 
+    def get_js_from_html(self, data):
+        map_object = json.loads(data)
+        self.type, self.data = map_object
+        print(self.type, self.data)
 
 curr_map = Map()

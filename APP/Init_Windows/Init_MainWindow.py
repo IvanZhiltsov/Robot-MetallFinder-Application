@@ -73,17 +73,19 @@ class WebEngineMap(QWebEngineView):
 
     @pyqtSlot(result=str)
     def get_map(self):
-        return curr_map.get_js_for_html()
+        return curr_map.push_js_for_html()
 
-    @pyqtSlot()
-    def finish_draw(self):
+    @pyqtSlot(str)
+    def finish_draw(self, data):
         self.main_window.del_poligon_btn.setEnabled(True)
+        curr_map.get_js_from_html(data)
 
     def del_polygon(self):
         self.page().runJavaScript("del_polygon()")
 
     def start_draw_polygon(self):
         self.page().runJavaScript("start_draw_polygon()")
+
 
 
 class TabMap:

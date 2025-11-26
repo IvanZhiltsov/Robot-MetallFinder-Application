@@ -24,8 +24,13 @@ function del_polygon() {
 	pointsCollection.removeAll();
 	linesCollection.removeAll();
 	polygonCollection.removeAll();
+
+	map_object = [map_type, null];
+	backend.finish_draw(JSON.stringify(map_object));
 };
 
+
+<!--INIT-->
 new QWebChannel(qt.webChannelTransport, async function (channel) {
 	backend = await channel.objects.backend;
 	init();
@@ -54,6 +59,8 @@ function initYMap() {
     };
 };
 
+
+<!--DRAW-->
 function start_draw_polygon() {
     pointsCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(pointsCollection);
@@ -124,7 +131,8 @@ const rightClick_fixPolygon = function (event) {
 
 	    ymap.events.remove('click', leftClick_fixMark);
 	    ymap.events.remove('contextmenu', rightClick_fixPolygon);
-	    backend.finish_draw();
+	    map_object = [map_type, polygon_cords];
+	    backend.finish_draw(JSON.stringify(map_object));
 	}
 
 	else {
