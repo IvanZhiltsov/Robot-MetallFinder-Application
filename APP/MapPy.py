@@ -33,7 +33,6 @@ class Map:
 
     def get_js_from_html(self, data):
         map_object = json.loads(data)
-        self.type, self.data = map_object
-        print(self.type, self.data)
+        print(map_object)
 
 curr_map = Map()

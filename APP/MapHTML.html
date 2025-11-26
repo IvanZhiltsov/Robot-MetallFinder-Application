@@ -18,6 +18,11 @@ var polygon_cords = [];
 var pointsCollection;
 var linesCollection;
 var polygonCollection;
+var polygon;
+
+var finish_cords;
+var finishCollection;
+var finish_point;
 
 function del_polygon() {
 	polygon_cords = [];
@@ -26,7 +31,7 @@ function del_polygon() {
 	polygonCollection.removeAll();
 
 	map_object = [map_type, null];
-	backend.finish_draw(JSON.stringify(map_object));
+	backend.push_data(JSON.stringify(map_object));
 };
 
 
@@ -60,7 +65,7 @@ function initYMap() {
 };
 
 
-<!--DRAW-->
+<!--DRAW POLYGON-->
 function start_draw_polygon() {
     pointsCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(pointsCollection);
@@ -76,10 +81,10 @@ function start_draw_polygon() {
 };
 
 const leftClick_fixMark = function (event) {
-	cords = event.get('coords');
+	let cords = event.get('coords');
 	polygon_cords.push(cords);
 
-	let placemark = new ymaps.Placemark(cords);
+	let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#blueCircleIcon'});
 	pointsCollection.add(placemark);
 
     let polygon_long = polygon_cords.length
@@ -126,20 +131,72 @@ const leftClick_fixMark = function (event) {
 
 const rightClick_fixPolygon = function (event) {
     if (polygon_cords.length > 2) {
-	    polygon = new ymaps.Polygon([polygon_cords, []], {}, {draggable: true});
+	    polygon = new ymaps.Polygon([polygon_cords, []]);
 	    polygonCollection.add(polygon);
 
 	    ymap.events.remove('click', leftClick_fixMark);
 	    ymap.events.remove('contextmenu', rightClick_fixPolygon);
-	    map_object = [map_type, polygon_cords];
-	    backend.finish_draw(JSON.stringify(map_object));
+
+	    let map_object = [map_type, polygon_cords, finish_cords];
+	    backend.push_data(JSON.stringify(map_object));
+
+	    backend.finish_draw();
 	}
 
 	else {
 	    polygon_cords = [];
 	    pointsCollection.removeAll();
+	    polygon = null;
 	};
 	linesCollection.removeAll();
+};
+
+
+<!--DRAW FINISH-->
+function start_draw_finish() {
+    finishCollection = new ymaps.GeoObjectCollection({}, {});
+    ymap.geoObjects.add(finishCollection);
+
+    ymap.events.add('click', leftClick_fixFinish);
+	ymap.events.add('contextmenu', rightClick_delFinish);
+
+	polygon.events.add('click', leftClick_fixFinish);
+	polygon.events.add('contextmenu', rightClick_delFinish);
+};
+
+const leftClick_fixFinish = function (event) {
+    let cords = event.get('coords');
+
+    if (polygon.geometry.contains(cords)) {
+        finish_cords = cords
+
+        finish_point = new ymaps.Placemark(cords, {}, {preset: 'islands#redCircleIcon'});
+	    finishCollection.add(finish_point);
+
+        ymap.events.remove('click', leftClick_fixFinish);
+	    ymap.events.remove('contextmenu', rightClick_delFinish);
+
+	    polygon.events.remove('click', leftClick_fixFinish);
+	    polygon.events.remove('contextmenu', rightClick_delFinish);
+
+	    let map_object = [map_type, polygon_cords, null];
+	    backend.push_data();
+
+	    backend.fix_finish();
+    }
+
+    else alert('Error: cannot set finish point outside polygon');
+};
+
+const rightClick_delFinish = function (event) {
+    finishCollection.removeAll();
+    finishPoint = null;
+
+    ymap.events.remove('click', leftClick_fixFinish);
+	ymap.events.remove('contextmenu', rightClick_delFinish);
+
+	polygon.events.remove('click', leftClick_fixFinish);
+	polygon.events.remove('contextmenu', rightClick_delFinish);
 };
 </script>
 

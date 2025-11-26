@@ -7,7 +7,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QMainWindow
 
 from PyQt6.QtWidgets import QPushButton, QButtonGroup, QFileDialog
-from PyQt6.QtCore import pyqtSlot, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSlot, pyqtSignal
 
 from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWebEngineWidgets import QWebEngineView
@@ -68,17 +68,22 @@ class WebEngineMap(QWebEngineView):
         self.channel.registerObject('backend', self)
         self.page().setWebChannel(self.channel)
 
-        self.test = False
-        self.text = None
-
     @pyqtSlot(result=str)
     def get_map(self):
         return curr_map.push_js_for_html()
 
     @pyqtSlot(str)
-    def finish_draw(self, data):
-        self.main_window.del_poligon_btn.setEnabled(True)
+    def push_data(self, data):
         curr_map.get_js_from_html(data)
+
+    @pyqtSlot()
+    def finish_draw(self):
+        self.main_window.del_poligon_btn.setEnabled(True)
+        self.main_window.finish_btn.setEnabled(True)
+
+    @pyqtSlot()
+    def fix_finish(self):
+        self.main_window.finish_btn.setEnabled(False)
 
     def del_polygon(self):
         self.page().runJavaScript("del_polygon()")
@@ -86,6 +91,8 @@ class WebEngineMap(QWebEngineView):
     def start_draw_polygon(self):
         self.page().runJavaScript("start_draw_polygon()")
 
+    def start_draw_finish(self):
+        self.page().runJavaScript("start_draw_finish()")
 
 
 class TabMap:
@@ -134,9 +141,11 @@ class TabMap:
         self.p.map_view.del_polygon()
         self.p.poligon_btn.setEnabled(True)
         self.p.del_poligon_btn.setEnabled(False)
+        self.p.finish_btn.setEnabled(False)
 
     def create_finish(self):
-        pass
+        self.p.map_view.start_draw_finish()
+        self.p.finish_btn.setEnabled(False)
 
 
 class TabRobot:
