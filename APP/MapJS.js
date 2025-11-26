@@ -19,6 +19,8 @@ var metalCollection;
 
 <!--BACKEND FUNCTIONS-->
 function del_polygon() {
+    mapType = 'empty';
+
 	polygonCords = [];
 	pointsCollection.removeAll();
 	linesCollection.removeAll();
@@ -54,10 +56,10 @@ function createMap() {
     pointsCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(pointsCollection);
 
-    linesCollection = new ymaps.GeoObjectCollection({}, {});
+    linesCollection = new ymaps.GeoObjectCollection({}, {strokeWidth: 2});
     ymap.geoObjects.add(linesCollection);
 
-    polygonCollection = new ymaps.GeoObjectCollection({}, {});
+    polygonCollection = new ymaps.GeoObjectCollection({}, {strokeWidth: 2});
     ymap.geoObjects.add(polygonCollection);
 
     finishCollection = new ymaps.GeoObjectCollection({}, {});
@@ -110,7 +112,7 @@ async function update() {
         if (received_finishCords) {
             finishCords = received_finishCords;
 
-            finishPoint = new ymaps.Placemark(cords, {}, {preset: 'islands#redCircleIcon'});
+            finishPoint = new ymaps.Placemark(finishCords, {}, {preset: 'islands#redCircleIcon'});
             finishCollection.add(finishPoint);
         }
 
@@ -118,7 +120,7 @@ async function update() {
             metalCords = received_metalCords;
 
             for (let cords of metalCords) {
-                let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#yellowIcon'});
+                let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#violetIcon'});
                 metalCollection.add(placemark);
             };
         };
@@ -182,7 +184,7 @@ const leftClick_fixMark = function (event) {
 	    line = new ymaps.Polyline([
             polygonCords[0],
             polygonCords[polygon_long - 1],
-        ], {}, {strokeStyle: 'dot'});
+        ], {}, {strokeStyle: 'dot', strokeColor: 'F00'});
         linesCollection.add(line);
     }
 
@@ -198,13 +200,15 @@ const leftClick_fixMark = function (event) {
         line = new ymaps.Polyline([
             polygonCords[0],
             polygonCords[polygon_long - 1],
-        ], {}, {strokeStyle: 'dot'});
+        ], {}, {strokeStyle: 'dot', strokeColor: 'F00'});
         linesCollection.add(line);
     };
 };
 
 const rightClick_fixPolygon = function (event) {
     if (polygonCords.length > 2) {
+        mapType = 'edit';
+
 	    polygon = new ymaps.Polygon([polygonCords, []]);
 	    polygonCollection.add(polygon);
 

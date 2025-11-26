@@ -63,8 +63,8 @@ class LoadFileDialog(QDialog):
         filename, ok = QFileDialog.getOpenFileName(self, "Выбрать карту", '')
         if ok:
             with open(filename, mode='r', encoding='utf-8') as file:
-                map_text = file.read()
-                self.geo_map = Map(map_text, filename)
+                map_js = file.read()
+                self.geo_map = Map(map_js, filename)
 
             if self.geo_map.type != "edit":
                 self.geo_map = None
@@ -82,8 +82,10 @@ class LoadFileDialog(QDialog):
         self.update()
 
     def push_file(self):
+        map_js = self.geo_map.js_for_save()
+
         if bluetooth.is_connected():
-            if bluetooth.push_file():
+            if bluetooth.push_file(map_js):
                 self.parent.update()
                 self.close()
             else:

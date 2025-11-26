@@ -184,7 +184,7 @@ class TabRobot:
             self.p.devices_widwet.show()
 
     def update_info(self):
-        # {"name": str, "device": {"adress": str, "info": dict}}
+        # {"name": str, "device": {"adress": str, "info": dict, "data": js}}
         data, ok = bluetooth.get_info()
 
         if not ok:
@@ -262,12 +262,12 @@ class TabRobot:
         self.p.update()
 
     def get_robot_data(self):
-        # {"name": str, "map_text": str}
-        geo_map, ok = bluetooth.get_map()
+        map_js, ok = bluetooth.get_map()
         if not ok:
             self.p.status_text = "Не удалось получить карту"
         else:
-            curr_map.set_map(*geo_map)
+            curr_map.set_map(map_js)
+            self.p.map_view.update_map()
         self.p.update()
 
     def clear_robot(self):

@@ -2,11 +2,6 @@ import json
 
 save_key = "Ymap js for Robot-MetalFinder Application"
 
-# python <--> js API
-# data for 'empty': None
-# data for 'edit': [[x1, y1], [x2, y2]...]
-# data for 'data': {'polygon': [[x1, y1], [x2, y2]...], 'metal_places': [[x1, y1], [x2, y2]...]}
-
 
 class Map:
     def __init__(self, map_js=None, name=None):
@@ -32,7 +27,7 @@ class Map:
             self.type = new_type
             self.data = new_data
 
-        except Exception as e:
+        except Exception:
             return False
 
         return True
