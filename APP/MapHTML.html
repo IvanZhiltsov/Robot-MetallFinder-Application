@@ -64,10 +64,10 @@ function createMap() {
     pointsCollection = new ymaps.GeoObjectCollection({}, {});
     ymap.geoObjects.add(pointsCollection);
 
-    linesCollection = new ymaps.GeoObjectCollection({}, {});
+    linesCollection = new ymaps.GeoObjectCollection({}, {strokeWidth: 2});
     ymap.geoObjects.add(linesCollection);
 
-    polygonCollection = new ymaps.GeoObjectCollection({}, {});
+    polygonCollection = new ymaps.GeoObjectCollection({}, {strokeWidth: 2});
     ymap.geoObjects.add(polygonCollection);
 
     finishCollection = new ymaps.GeoObjectCollection({}, {});
@@ -192,7 +192,7 @@ const leftClick_fixMark = function (event) {
 	    line = new ymaps.Polyline([
             polygonCords[0],
             polygonCords[polygon_long - 1],
-        ], {}, {strokeStyle: 'dot'});
+        ], {}, {strokeStyle: 'dot', strokeColor: 'F00'});
         linesCollection.add(line);
     }
 
@@ -208,7 +208,7 @@ const leftClick_fixMark = function (event) {
         line = new ymaps.Polyline([
             polygonCords[0],
             polygonCords[polygon_long - 1],
-        ], {}, {strokeStyle: 'dot'});
+        ], {}, {strokeStyle: 'dot', strokeColor: 'F00'});
         linesCollection.add(line);
     };
 };

@@ -23,6 +23,7 @@ function del_polygon() {
 	pointsCollection.removeAll();
 	linesCollection.removeAll();
 	polygonCollection.removeAll();
+	polygon = null;
 
 	finishCollection.removeAll();
 	finishPoint = null;
@@ -30,7 +31,7 @@ function del_polygon() {
 	let map_object = {type: mapType, data: null};
 	backend.push_data(JSON.stringify(map_object));
 
-	update();
+	update_btns();
 };
 
 
@@ -127,20 +128,21 @@ async function update() {
 };
 
 function update_btns() {
-    let btns = {polygon, del_polygon, finish};
+    let btns = {polygon: null, del_polygon: null, finish: null};
 
     if (polygon){
         btns.polygon = false;
         btns.del_polygon = true;
+
+        if (finishPoint) btns.finish = false
+        else btns.finish = true;
     }
+
     else {
         btns.polygon = true;
         btns.del_polygon = false;
         btns.finish = false;
     };
-
-    if (finishPoint) btns.finish = false
-    else btns.finish = true;
 
     backend.set_btns(JSON.stringify(btns));
 };
@@ -215,8 +217,6 @@ const rightClick_fixPolygon = function (event) {
 	        metalCords: null
 	    }};
 	    backend.push_data(JSON.stringify(map_object));
-
-	    update_btns();
 	}
 
 	else {
@@ -225,14 +225,13 @@ const rightClick_fixPolygon = function (event) {
 	    polygon = null;
 	};
 	linesCollection.removeAll();
+
+	update_btns();
 };
 
 
 <!--DRAW FINISH-->
 function start_draw_finish() {
-    finishCollection = new ymaps.GeoObjectCollection({}, {});
-    ymap.geoObjects.add(finishCollection);
-
     ymap.events.add('click', leftClick_fixFinish);
 	ymap.events.add('contextmenu', rightClick_delFinish);
 
@@ -277,4 +276,6 @@ const rightClick_delFinish = function (event) {
 
 	polygon.events.remove('click', leftClick_fixFinish);
 	polygon.events.remove('contextmenu', rightClick_delFinish);
+
+	update_btns();
 };
