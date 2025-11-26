@@ -73,7 +73,6 @@ class WebEngineMap(QWebEngineView):
     @pyqtSlot(str)
     def set_btns(self, btns_js):
         btns = json.loads(btns_js)
-        print(btns)
         self.main_window.poligon_btn.setEnabled(btns['polygon'])
         self.main_window.del_poligon_btn.setEnabled(btns['del_polygon'])
         self.main_window.finish_btn.setEnabled(btns['finish'])
@@ -301,17 +300,32 @@ class Menu:
         if ok:
             with open(filename, mode='r', encoding='utf-8') as file:
                 map_js = file.read().rstrip()
-                if curr_map.set_map(map_js):
+                if curr_map.set_map(map_js, filename):
                     self.p.map_view.update_map()
                 else:
                     self.p.status_text = "Не удалось открыть файл неизвестного типа"
             self.p.update()
 
     def save_file(self):
-        pass
+        if curr_map.name is None:
+            self.save_as_file()
+        else:
+            file = open(curr_map.name, mode='w', encoding='utf-8')
+            map_js = curr_map.js_for_save()
+            file.write(map_js)
+            file.close()
 
     def save_as_file(self):
-        pass
+        filename, ok = QFileDialog.getSaveFileName(self.p, "Открыть файл", '')
+        if ok:
+            file = open(filename, mode='w', encoding='utf-8')
+            map_js = curr_map.js_for_save()
+            file.write(map_js)
+            file.close()
+
+            curr_map.name = filename
+
+            self.p.update()
 
     def load_file(self):
         self.p.load_file()

@@ -29,6 +29,8 @@ var metalCollection;
 
 <!--BACKEND FUNCTIONS-->
 function del_polygon() {
+    mapType = 'empty';
+
 	polygonCords = [];
 	pointsCollection.removeAll();
 	linesCollection.removeAll();
@@ -120,7 +122,7 @@ async function update() {
         if (received_finishCords) {
             finishCords = received_finishCords;
 
-            finishPoint = new ymaps.Placemark(cords, {}, {preset: 'islands#redCircleIcon'});
+            finishPoint = new ymaps.Placemark(finishCords, {}, {preset: 'islands#redCircleIcon'});
             finishCollection.add(finishPoint);
         }
 
@@ -128,7 +130,7 @@ async function update() {
             metalCords = received_metalCords;
 
             for (let cords of metalCords) {
-                let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#yellowIcon'});
+                let placemark = new ymaps.Placemark(cords, {}, {preset: 'islands#violetIcon'});
                 metalCollection.add(placemark);
             };
         };
@@ -215,6 +217,8 @@ const leftClick_fixMark = function (event) {
 
 const rightClick_fixPolygon = function (event) {
     if (polygonCords.length > 2) {
+        mapType = 'edit';
+
 	    polygon = new ymaps.Polygon([polygonCords, []]);
 	    polygonCollection.add(polygon);
 

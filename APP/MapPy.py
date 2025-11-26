@@ -1,5 +1,7 @@
 import json
 
+save_key = "Ymap js for Robot-MetalFinder Application"
+
 # python <--> js API
 # data for 'empty': None
 # data for 'edit': [[x1, y1], [x2, y2]...]
@@ -21,28 +23,32 @@ class Map:
     def set_map(self, map_js, name=None):
         try:
             new_map = json.loads(map_js)
-            new_type, new_data = new_map.values()
+            key, new_type, new_data = new_map.values()
+
+            if key != save_key:
+                return False
 
             self.name = name
             self.type = new_type
             self.data = new_data
 
-            print(self.type)
-            print(self.data)
-
         except Exception as e:
-            print(e)
             return False
 
         return True
+
+    def js_for_save(self):
+        map_object = {"key": save_key, "type": self.type, "data": self.data}
+        return json.dumps(map_object)
 
     def push_js_for_html(self):
         map_object = {"type": self.type, "data": self.data}
         return json.dumps(map_object)
 
-    def get_js_from_html(self, data):
-        map_object = json.loads(data)
-        print(data)
+    def get_js_from_html(self, map_js):
+        map_object = json.loads(map_js)
+        self.type = map_object["type"]
+        self.data = map_object["data"]
 
 
 curr_map = Map()
