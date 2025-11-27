@@ -1,3 +1,33 @@
+from PyQt6 import QtBluetooth as QtBt
+
+real_devices = []
+real_count_devices = 0
+stop_count_devices = 5
+
+
+class ScanDevices(QtBt.QBluetoothDeviceDiscoveryAgent):
+    def __init__(self, count, parent):
+        super().__init__(parent)
+
+        self.parent = parent
+        self.stop_count = count
+        self.count_devices = 0
+
+        self.deviceDiscovered.connect(self.get_device)
+
+        self.start()
+
+    def get_device(self, device):
+        name = device.name()
+        real_devices.append(name)
+
+        self.count_devices += 1
+
+        if self.count_devices >= self.stop_count:
+            self.stop()
+            self.parent.exec()
+
+
 class Bluetooth:
     def __init__(self):
         self.connection = False
@@ -36,8 +66,16 @@ class Bluetooth:
         self.current_device = None
         pass
 
-    def get_dev_names(self):
-        return self.devices
+    def get_dev_names(self, bl_app):
+        global real_devices, stop_count_devices
+
+        ScanDevices(stop_count_devices, bl_app)
+
+        new_real_dev = real_devices
+        real_devices = []
+
+        all_dev = [self.devices, new_real_dev]
+        return all_dev
 
     def get_info(self):
         if self.connection:
