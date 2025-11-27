@@ -267,14 +267,21 @@ class TabRobot:
             del btn
 
         all_dev = w_bluetooth.get_dev_names(bl_app)
-        names = all_dev[1]
+        map_dev, real_dev = all_dev
 
-        if len(names) == 0:
+        if len(map_dev) == 0:
             self.p.divices_label.setText("Не найдены устройства для подключения")
         else:
             self.p.divices_label.setText("Доступные устройства:")
 
-            for name in names:
+            for name in map_dev:
+                btn = QPushButton(name, self.p)
+                btn.clicked.connect(self.get_connection)
+
+                self.dev_btn_group.addButton(btn)
+                self.p.devices_vl.addWidget(btn)
+
+            for name in real_dev:
                 btn = QPushButton(name, self.p)
                 btn.clicked.connect(self.get_connection)
 
