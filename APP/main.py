@@ -1,7 +1,6 @@
 import sys
 
-from BluetoothPy import bluetooth
-from Init_Windows import Init_MainWindow
+from Init_Windows.Init_MainWindow import MainWindow
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6 import QtCore, QtWidgets
@@ -20,10 +19,7 @@ def except_hook(cls, exception, traceback):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    Init_MainWindow.w_bluetooth = bluetooth
-    Init_MainWindow.bl_app = app
-
-    ex = Init_MainWindow.MainWindow()
+    ex = MainWindow(app)
     ex.show()
     sys.excepthook = except_hook
     sys.exit(app.exec())

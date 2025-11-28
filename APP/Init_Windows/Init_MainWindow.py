@@ -3,7 +3,7 @@ import json
 from APP.Init_Windows.Init_LoadFileDialog import LoadFileDialog
 
 from APP.MapPy import *
-# from APP.BluetoothPy import *
+from APP.BluetoothPy import bluetooth
 from APP.ActionsManagerPy import actions_manager
 
 from PyQt6 import uic
@@ -16,13 +16,12 @@ from PyQt6.QtWebEngineCore import QWebEnginePage
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
 
-bl_app = None
-w_bluetooth = None
-
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app):
         super().__init__()
+        self.app = app
+
         uic.loadUi('Windows_Templates_UI/MainWindow.ui', self)
         self.showMaximized()
 
@@ -148,16 +147,12 @@ class TabMap:
 
     def undo(self):
         map_js, ends = actions_manager.undo()
-        print(map_js)
-        curr_map.set_map(map_js)
         curr_map.update(map_js)
         self.p.map_view.update_map()
         self.p.chack_actions(ends)
 
-
     def recover(self):
         map_js, ends = actions_manager.recover()
-        print(map_js)
         curr_map.update(map_js)
         self.p.map_view.update_map()
         self.p.chack_actions(ends)
@@ -183,7 +178,7 @@ class TabRobot:
         self.p = parent
 
         self.dev_btn_group = QButtonGroup(self.p)
-        self.p.update_dev_btn.clicked.connect(self.update_devices)
+        self.p.update_dev_btn.clicked.connect(self.update)
 
         self.p.discon_btn.clicked.connect(self.disconnection)
         self.p.get_data_btn.clicked.connect(self.get_robot_data)
@@ -193,12 +188,12 @@ class TabRobot:
         self.update()
 
     def update(self):
-        if w_bluetooth.is_bluetooth():
+        if bluetooth.is_bluetooth():
             self.p.is_bluetooth_lable.clear()
         else:
             self.p.is_bluetooth_lable.setText("Нет подключения к Bluetooth!!")
 
-        if w_bluetooth.is_connected():
+        if bluetooth.is_connected():
             self.update_info()
 
             self.p.edit_widget.show()
@@ -206,8 +201,7 @@ class TabRobot:
             self.p.devices_widwet.hide()
 
         else:
-            if bl_app is not None:
-                self.update_devices()
+            self.update_devices()
 
             self.p.edit_widget.hide()
             self.p.info_widget.hide()
@@ -215,7 +209,7 @@ class TabRobot:
 
     def update_info(self):
         # {"name": str, "device": {"adress": str, "info": dict, "data": js}}
-        data, ok = w_bluetooth.get_info()
+        data, ok = bluetooth.get_info()
 
         if not ok:
             self.p.statusBar().showMessange("Не удалось получить информацию о роботе")
@@ -266,7 +260,7 @@ class TabRobot:
             self.p.devices_vl.removeWidget(btn)
             del btn
 
-        all_dev = w_bluetooth.get_dev_names(bl_app)
+        all_dev = bluetooth.get_dev_names(self.p.app)
         map_dev, real_dev = all_dev
 
         if len(map_dev) == 0:
@@ -290,17 +284,17 @@ class TabRobot:
 
     def get_connection(self):
         name = self.p.sender().text()
-        w_bluetooth.get_connection(name)
-        if not w_bluetooth.is_connected():
+        bluetooth.get_connection(name)
+        if not bluetooth.is_connected():
             self.p.status_text = f"Не удалось подключиться к устройству {name}"
         self.p.update()
 
     def disconnection(self):
-        w_bluetooth.disconection()
+        bluetooth.disconection()
         self.p.update()
 
     def get_robot_data(self):
-        map_js, ok = w_bluetooth.get_map()
+        map_js, ok = bluetooth.get_map()
         if not ok:
             self.p.status_text = "Не удалось получить карту"
         else:
@@ -309,7 +303,7 @@ class TabRobot:
         self.p.update()
 
     def clear_robot(self):
-        ok = w_bluetooth.clear()
+        ok = bluetooth.clear()
         if not ok:
             self.p.status_text = "Не удалось очистить память"
         self.update()
@@ -328,7 +322,7 @@ class Menu:
         self.update()
 
     def update(self):
-        if w_bluetooth.is_connected() and curr_map.type == "edit":
+        if bluetooth.is_connected() and curr_map.type == "edit":
             self.p.action_load.setEnabled(True)
         else:
             self.p.action_load.setEnabled(False)
