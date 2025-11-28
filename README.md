@@ -171,3 +171,12 @@ https://disk.yandex.ru/d/iXoZDTNDujEJNA
 - HTML загружает API Яндекс Карт для дальнейшего использования в JavaScript
 - QWebEngineChannal – устанавливает связь между сервером Python и клиентом  JavaScript
 - Класс Map на сервере дублирует координаты объектов для их сохранения и передачи
+
+**Используемые технологии**
+- Язык программирования Python
+- Язык HTML, JavaScript и API Яндекс Карт, библиотека Json 
+- Библиотека PyQt6 и QtWebEngine
+- Библиотека QtBluetooth
+- Среда программирования PyCharm
+- QtDesigner для создания интерфейса
+- Технологии Git
