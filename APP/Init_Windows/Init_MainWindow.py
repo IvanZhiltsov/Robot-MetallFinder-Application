@@ -135,6 +135,7 @@ class TabMap:
             self.p.map_html = html_file.read()
         self.p.map_view.map_page.setHtml(self.p.map_html)
 
+        self.p.add_action("new", curr_map.push_js_for_html())
         self.update()
 
     def update(self):
@@ -143,19 +144,17 @@ class TabMap:
         else:
             self.p.edit_map_widget.hide()
 
-        self.p.add_action("new", curr_map.push_js_for_html())
-
     def undo(self):
         map_js, ends = actions_manager.undo()
         curr_map.update(map_js)
-        self.p.map_view.update_map()
         self.p.chack_actions(ends)
+        self.p.map_view.update_map()
 
     def recover(self):
         map_js, ends = actions_manager.recover()
         curr_map.update(map_js)
-        self.p.map_view.update_map()
         self.p.chack_actions(ends)
+        self.p.map_view.update_map()
 
     def mode_cursor(self):
         pass
@@ -300,13 +299,14 @@ class TabRobot:
         else:
             curr_map.set_map(map_js)
             self.p.map_view.update_map()
+            self.p.add_action("new", curr_map.push_js_for_html())
         self.p.update()
 
     def clear_robot(self):
         ok = bluetooth.clear()
         if not ok:
             self.p.status_text = "Не удалось очистить память"
-        self.update()
+        self.p.update()
 
 
 class Menu:
@@ -334,6 +334,7 @@ class Menu:
                 map_js = file.read().rstrip()
                 if curr_map.set_map(map_js, filename):
                     self.p.map_view.update_map()
+                    self.p.add_action("new", curr_map.push_js_for_html())
                 else:
                     self.p.status_text = "Не удалось открыть файл неизвестного типа"
             self.p.update()
