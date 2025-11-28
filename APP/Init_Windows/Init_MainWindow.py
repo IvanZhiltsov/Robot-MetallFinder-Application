@@ -299,7 +299,6 @@ class TabRobot:
         else:
             curr_map.set_map(map_js)
             self.p.map_view.update_map()
-            self.p.add_action("new", curr_map.push_js_for_html())
         self.p.update()
 
     def clear_robot(self):
